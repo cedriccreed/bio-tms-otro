@@ -79,7 +79,7 @@ export default function DashboardScreen({ onNavigate }: DashboardScreenProps) {
     <div className="flex flex-col gap-6 p-6">
       {/* Header */}
       <div>
-        <h1 className="text-xl font-bold text-white">BioTMS — Panel de Operaciones</h1>
+        <h1 className="text-xl font-bold text-white">PADWORTMS — Panel de Operaciones</h1>
         <p className="text-sm mt-0.5" style={{ color: "#64748b" }}>Resumen en tiempo real del sistema de tracking terrestre</p>
       </div>
 

@@ -53,7 +53,7 @@ export default function AlertaScreen({ onNavigate }: AlertaScreenProps) {
             <h1 className="text-xl font-bold" style={{ color: "#f87171" }}>
               ALERTA — CAMIÓN EN ZONA FINAL
             </h1>
-            <p className="text-xs" style={{ color: "#64748b" }}>Sistema BioTMS · Detección automática por geocerca</p>
+            <p className="text-xs" style={{ color: "#64748b" }}>Sistema PADWORTMS · Detección automática por geocerca</p>
           </div>
         </div>
       </div>

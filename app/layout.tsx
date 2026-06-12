@@ -10,7 +10,7 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'BioTMS — Sistema de Tracking Terrestre',
+  title: 'PADWORTMS — Sistema de Tracking Terrestre',
   description: 'Plataforma de tracking terrestre para Padwor Group × Starb',
   generator: 'v0.app',
   icons: {

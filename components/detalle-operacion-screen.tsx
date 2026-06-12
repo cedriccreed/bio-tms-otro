@@ -39,7 +39,7 @@ const gmailThread = [
     badgeBorder: "rgba(59,130,246,0.25)",
   },
   {
-    from: "sistema@biotms.cl (automático)",
+    from: "sistema@padwortms.cl (automático)",
     date: "09 Jun 09:00",
     preview: "UNIDAD RUMBO A PLANTA POR VILLA REGINA",
     badge: "Auto ✓",
@@ -48,7 +48,7 @@ const gmailThread = [
     badgeBorder: "rgba(34,197,94,0.25)",
   },
   {
-    from: "sistema@biotms.cl (automático)",
+    from: "sistema@padwortms.cl (automático)",
     date: "09 Jun 18:00",
     preview: "UNIDAD RUMBO A PLANTA POR CUTRAL CO",
     badge: "Auto ✓",
@@ -57,7 +57,7 @@ const gmailThread = [
     badgeBorder: "rgba(34,197,94,0.25)",
   },
   {
-    from: "sistema@biotms.cl (automático)",
+    from: "sistema@padwortms.cl (automático)",
     date: "10 Jun 09:00",
     preview: "UNIDAD RUMBO A PLANTA POR POMONA",
     badge: "Auto ✓",
@@ -66,7 +66,7 @@ const gmailThread = [
     badgeBorder: "rgba(34,197,94,0.25)",
   },
   {
-    from: "sistema@biotms.cl (automático)",
+    from: "sistema@padwortms.cl (automático)",
     date: "10 Jun 18:00",
     preview: "UNIDAD EN PLANTA",
     badge: "Auto ✓",
@@ -75,7 +75,7 @@ const gmailThread = [
     badgeBorder: "rgba(34,197,94,0.25)",
   },
   {
-    from: "sistema@biotms.cl (automático)",
+    from: "sistema@padwortms.cl (automático)",
     date: "11 Jun 09:00",
     preview: "FULL EN PLANTA A LA ESPERA DE DOCUMENTACIÓN",
     badge: "Auto ✓",

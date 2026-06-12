@@ -50,7 +50,7 @@ function SidebarContent({ activeNav, onNavigate, onLogout, onNavClick }: Sidebar
           <Truck className="w-5 h-5" style={{ color: "#22c55e" }} />
         </div>
         <div>
-          <p className="text-base font-bold text-white leading-none">BioTMS</p>
+          <p className="text-base font-bold text-white leading-none">PADWORTMS</p>
           <p className="text-xs mt-0.5" style={{ color: "#475569" }}>Padwor Group × Starb</p>
         </div>
       </div>

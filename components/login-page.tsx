@@ -20,7 +20,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
     setLoading(true)
 
     setTimeout(() => {
-      if (email === "admin@biotms.cl" && password === "demo2026") {
+      if (email === "admin@padwortms.cl" && password === "demo2026") {
         onLogin()
       } else {
         setError("Credenciales incorrectas. Use las credenciales de demo.")
@@ -30,7 +30,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
   }
 
   const fillDemo = () => {
-    setEmail("admin@biotms.cl")
+    setEmail("admin@padwortms.cl")
     setPassword("demo2026")
     setError("")
   }
@@ -74,7 +74,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
           >
             <Truck className="w-8 h-8" style={{ color: "#22c55e" }} />
           </div>
-          <h1 className="text-3xl font-bold tracking-tight text-white">BioTMS</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-white">PADWORTMS</h1>
           <p className="text-sm mt-1 font-medium" style={{ color: "#94a3b8" }}>
             Sistema de Tracking Terrestre
           </p>
@@ -190,7 +190,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-2">
               <span className="text-xs" style={{ color: "#64748b" }}>Usuario:</span>
-              <span className="text-xs font-mono" style={{ color: "#cbd5e1" }}>admin@biotms.cl</span>
+              <span className="text-xs font-mono" style={{ color: "#cbd5e1" }}>admin@padwortms.cl</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-xs" style={{ color: "#64748b" }}>Contraseña:</span>
@@ -201,7 +201,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
 
         {/* Footer */}
         <p className="text-center text-xs mt-6" style={{ color: "#334155" }}>
-          BioTMS v2.0 — Padwor Group × Starb © 2026
+          PADWORTMS v2.0 — Padwor Group × Starb © 2026
         </p>
       </div>
     </div>
