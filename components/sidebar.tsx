@@ -1,9 +1,9 @@
 "use client"
 
-import { Truck, LayoutDashboard, ClipboardList, Plus, Bell, Settings, Circle, Menu, X } from "lucide-react"
+import { Truck, LayoutDashboard, ClipboardList, Plus, Settings, Circle, Menu, X } from "lucide-react"
 import { useState } from "react"
 
-type Screen = "dashboard" | "operaciones" | "vehiculos" | "nueva" | "alertas" | "configuracion" | "detalle" | "alerta"
+type Screen = "dashboard" | "operaciones" | "vehiculos" | "nueva" | "configuracion" | "detalle" | "alerta"
 
 interface SidebarProps {
   activeScreen: Screen
@@ -16,15 +16,11 @@ const navItems = [
   { id: "operaciones" as Screen, label: "Operaciones", icon: ClipboardList },
   { id: "vehiculos" as Screen, label: "Vehículos", icon: Truck },
   { id: "nueva" as Screen, label: "Nueva Operación", icon: Plus },
-  { id: "alertas" as Screen, label: "Alertas", icon: Bell, badge: 2 },
   { id: "configuracion" as Screen, label: "Configuración", icon: Settings },
 ]
 
-const alertGroup: Screen[] = ["alertas", "alerta"]
-
 function getActiveNav(screen: Screen): Screen {
   if (screen === "detalle") return "operaciones"
-  if (alertGroup.includes(screen)) return "alertas"
   return screen
 }
 
@@ -57,7 +53,7 @@ function SidebarContent({ activeNav, onNavigate, onLogout, onNavClick }: Sidebar
 
       {/* Nav */}
       <nav className="flex flex-col gap-1 px-3 py-4 flex-1">
-        {navItems.map(({ id, label, icon: Icon, badge }) => {
+        {navItems.map(({ id, label, icon: Icon }) => {
           const isActive = activeNav === id
           return (
             <button
@@ -82,14 +78,6 @@ function SidebarContent({ activeNav, onNavigate, onLogout, onNavClick }: Sidebar
             >
               <Icon className="w-4.5 h-4.5 flex-shrink-0 w-[18px] h-[18px]" />
               <span className="text-sm font-medium flex-1">{label}</span>
-              {badge && (
-                <span
-                  className="flex items-center justify-center w-5 h-5 rounded-full text-xs font-bold"
-                  style={{ backgroundColor: "#ef4444", color: "white" }}
-                >
-                  {badge}
-                </span>
-              )}
               {isActive && (
                 <div
                   className="w-1.5 h-1.5 rounded-full"

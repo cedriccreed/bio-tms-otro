@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { Bell } from "lucide-react"
 import Sidebar from "./sidebar"
 import DashboardScreen from "./dashboard-screen"
 import NuevaOperacionScreen from "./nueva-operacion-screen"
@@ -9,7 +10,7 @@ import AlertaScreen from "./alerta-screen"
 import ConfiguracionScreen from "./configuracion-screen"
 import VehiculosScreen from "./vehiculos-screen"
 
-type Screen = "dashboard" | "operaciones" | "vehiculos" | "nueva" | "alertas" | "configuracion" | "detalle" | "alerta"
+type Screen = "dashboard" | "operaciones" | "vehiculos" | "nueva" | "configuracion" | "detalle" | "alerta"
 
 interface DashboardAppProps {
   onLogout: () => void
@@ -29,7 +30,6 @@ export default function DashboardApp({ onLogout }: DashboardAppProps) {
     operaciones: "Operaciones",
     vehiculos: "Vehículos",
     nueva: "Nueva Operación",
-    alertas: "Alertas",
     configuracion: "Configuración",
     detalle: "Detalle Operación",
     alerta: "Alerta Zona Final",
@@ -46,7 +46,6 @@ export default function DashboardApp({ onLogout }: DashboardAppProps) {
         return <NuevaOperacionScreen onNavigate={handleNavigate} />
       case "detalle":
         return <DetalleOperacionScreen operationId={selectedOpId} onNavigate={handleNavigate} />
-      case "alertas":
       case "alerta":
         return <AlertaScreen onNavigate={handleNavigate} />
       case "configuracion":
@@ -75,6 +74,25 @@ export default function DashboardApp({ onLogout }: DashboardAppProps) {
             {screenTitles[currentScreen]}
           </h2>
           <div className="ml-auto flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => handleNavigate("alerta")}
+              className="relative flex items-center justify-center w-9 h-9 rounded-full transition-all hover:opacity-80"
+              style={{
+                backgroundColor: "rgba(34,197,94,0.08)",
+                border: "1px solid rgba(34,197,94,0.15)",
+                color: "#22c55e",
+              }}
+              aria-label="Alertas"
+            >
+              <Bell className="w-4 h-4" />
+              <span
+                className="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 rounded-full text-[10px] font-bold"
+                style={{ backgroundColor: "#ef4444", color: "white" }}
+              >
+                2
+              </span>
+            </button>
             <div
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs"
               style={{ backgroundColor: "rgba(34,197,94,0.08)", color: "#22c55e", border: "1px solid rgba(34,197,94,0.15)" }}

@@ -1,11 +1,30 @@
 "use client"
 
 import { useState } from "react"
-import { RefreshCw, CheckCircle, ExternalLink, MapPin, Clock, Satellite, ChevronLeft, Mail, X } from "lucide-react"
+import { RefreshCw, CheckCircle, ExternalLink, MapPin, Clock, Satellite, ChevronLeft, X } from "lucide-react"
 
 interface DetalleOperacionProps {
   operationId?: string
   onNavigate: (screen: string) => void
+}
+
+interface TabularData {
+  op: string
+  shipper: string
+  status: string
+  transporte: string
+}
+
+interface GmailEmail {
+  id: number
+  avatar: string
+  avatarBg: string
+  sender: string
+  date: string
+  preview: string
+  type: "text" | "tabular" | "tabular-attachment"
+  textContent?: string
+  tabular?: TabularData
 }
 
 const timelineEvents = [
@@ -28,65 +47,227 @@ const opData = [
   { label: "Booking", value: "BK-98765" },
 ]
 
-const gmailThread = [
+const gmailThread: GmailEmail[] = [
   {
-    from: "jessica@padwor.com",
-    date: "09 Jun 09:00",
+    id: 1,
+    avatar: "JP",
+    avatarBg: "#0b8043",
+    sender: "Jessica Padwor <jessica@padwor.com>",
+    date: "lun, 9 jun, 09:00",
     preview: "Confirmación de booking — IBERCONSA, Puerto Coronel...",
-    badge: "Booking confirmado",
-    badgeColor: "#60a5fa",
-    badgeBg: "rgba(59,130,246,0.15)",
-    badgeBorder: "rgba(59,130,246,0.25)",
+    type: "text",
+    textContent: `Estimados,
+Confirmamos el booking para la operación EXM4632-25.
+Cliente: IBERCONSA
+POL: Coronel | POD: New York
+Buque: MSC Rayshmi
+Fecha consolidación: 31 oct`,
   },
   {
-    from: "sistema@padwortms.cl (automático)",
-    date: "09 Jun 09:00",
-    preview: "UNIDAD RUMBO A PLANTA POR VILLA REGINA",
-    badge: "Auto ✓",
-    badgeColor: "#22c55e",
-    badgeBg: "rgba(34,197,94,0.12)",
-    badgeBorder: "rgba(34,197,94,0.25)",
+    id: 2,
+    avatar: "BP",
+    avatarBg: "#1a73e8",
+    sender: "PADWORTMS <sistema@padwortms.cl>",
+    date: "lun, 9 jun, 09:00",
+    preview: "...",
+    type: "tabular",
+    tabular: {
+      op: "EXM4632-25",
+      shipper: "IBERCONSA",
+      status: "UNIDAD RUMBO A PLANTA POR VILLA REGINA",
+      transporte: "LOGISTICA STARB",
+    },
   },
   {
-    from: "sistema@padwortms.cl (automático)",
-    date: "09 Jun 18:00",
-    preview: "UNIDAD RUMBO A PLANTA POR CUTRAL CO",
-    badge: "Auto ✓",
-    badgeColor: "#22c55e",
-    badgeBg: "rgba(34,197,94,0.12)",
-    badgeBorder: "rgba(34,197,94,0.25)",
+    id: 3,
+    avatar: "BP",
+    avatarBg: "#1a73e8",
+    sender: "PADWORTMS <sistema@padwortms.cl>",
+    date: "lun, 9 jun, 18:00",
+    preview: "...",
+    type: "tabular",
+    tabular: {
+      op: "EXM4632-25",
+      shipper: "IBERCONSA",
+      status: "UNIDAD RUMBO A PLANTA POR CUTRAL CO",
+      transporte: "LOGISTICA STARB",
+    },
   },
   {
-    from: "sistema@padwortms.cl (automático)",
-    date: "10 Jun 09:00",
-    preview: "UNIDAD RUMBO A PLANTA POR POMONA",
-    badge: "Auto ✓",
-    badgeColor: "#22c55e",
-    badgeBg: "rgba(34,197,94,0.12)",
-    badgeBorder: "rgba(34,197,94,0.25)",
+    id: 4,
+    avatar: "BP",
+    avatarBg: "#1a73e8",
+    sender: "PADWORTMS <sistema@padwortms.cl>",
+    date: "mar, 10 jun, 09:00",
+    preview: "...",
+    type: "tabular",
+    tabular: {
+      op: "EXM4632-25",
+      shipper: "IBERCONSA",
+      status: "UNIDAD RUMBO A PLANTA POR POMONA",
+      transporte: "LOGISTICA STARB",
+    },
   },
   {
-    from: "sistema@padwortms.cl (automático)",
-    date: "10 Jun 18:00",
-    preview: "UNIDAD EN PLANTA",
-    badge: "Auto ✓",
-    badgeColor: "#22c55e",
-    badgeBg: "rgba(34,197,94,0.12)",
-    badgeBorder: "rgba(34,197,94,0.25)",
+    id: 5,
+    avatar: "BP",
+    avatarBg: "#1a73e8",
+    sender: "PADWORTMS <sistema@padwortms.cl>",
+    date: "mar, 10 jun, 18:00",
+    preview: "...",
+    type: "tabular",
+    tabular: {
+      op: "EXM4632-25",
+      shipper: "IBERCONSA",
+      status: "UNIDAD EN PLANTA",
+      transporte: "LOGISTICA STARB",
+    },
   },
   {
-    from: "sistema@padwortms.cl (automático)",
-    date: "11 Jun 09:00",
-    preview: "FULL EN PLANTA A LA ESPERA DE DOCUMENTACIÓN",
-    badge: "Auto ✓",
-    badgeColor: "#22c55e",
-    badgeBg: "rgba(34,197,94,0.12)",
-    badgeBorder: "rgba(34,197,94,0.25)",
+    id: 6,
+    avatar: "BP",
+    avatarBg: "#1a73e8",
+    sender: "PADWORTMS <sistema@padwortms.cl>",
+    date: "mié, 11 jun, 09:00",
+    preview: "...",
+    type: "tabular-attachment",
+    tabular: {
+      op: "EXM4632-25",
+      shipper: "IBERCONSA",
+      status: "FULL EN PLANTA A LA ESPERA DE DOCUMENTACIÓN",
+      transporte: "LOGISTICA STARB",
+    },
   },
 ]
 
+function TabularEmailBody({ data }: { data: TabularData }) {
+  return (
+    <div className="mt-3 text-sm text-[#202124] leading-relaxed">
+      <p className="font-medium mb-2">{data.status}</p>
+      <div
+        className="rounded border text-xs font-mono overflow-x-auto"
+        style={{ borderColor: "#dadce0", backgroundColor: "#f8f9fa" }}
+      >
+        <table className="w-full border-collapse">
+          <tbody>
+            {[
+              ["OP", data.op],
+              ["SHIPPER", data.shipper],
+              ["STATUS", data.status],
+              ["TRANSPORTE", data.transporte],
+            ].map(([label, value]) => (
+              <tr key={label} style={{ borderBottom: "1px solid #e8eaed" }}>
+                <td className="px-3 py-2 font-semibold text-[#5f6368] whitespace-nowrap">{label}</td>
+                <td className="px-3 py-2 text-[#202124]">{value}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+
+function GmailThreadEmail({
+  email,
+  expanded,
+  onToggle,
+}: {
+  email: GmailEmail
+  expanded: boolean
+  onToggle: () => void
+}) {
+  const senderName = email.sender.split("<")[0].trim()
+
+  return (
+    <div style={{ borderBottom: "1px solid #e8eaed" }}>
+      <button
+        type="button"
+        onClick={onToggle}
+        className="w-full text-left px-4 py-3 transition-colors hover:bg-[#f6f8fc]"
+      >
+        <div className="flex items-start gap-3">
+          <div
+            className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 text-sm font-semibold text-white"
+            style={{ backgroundColor: email.avatarBg }}
+          >
+            {email.avatar}
+          </div>
+
+          {expanded ? (
+            <div className="flex-1 min-w-0">
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <p className="text-sm font-medium text-[#202124]">{senderName}</p>
+                  <p className="text-xs text-[#5f6368] mt-0.5">para mí</p>
+                </div>
+                <span className="text-xs text-[#5f6368] flex-shrink-0">{email.date}</span>
+              </div>
+            </div>
+          ) : (
+            <div className="flex-1 min-w-0 flex items-center gap-2 overflow-hidden">
+              <span className="text-sm font-medium text-[#202124] flex-shrink-0">{senderName}</span>
+              <span className="text-xs text-[#5f6368] flex-shrink-0">{email.date}</span>
+              <span className="text-sm text-[#5f6368] truncate">{email.preview}</span>
+            </div>
+          )}
+        </div>
+      </button>
+
+      {expanded && (
+        <div className="px-4 pb-4 pl-[4.25rem]">
+          {email.type === "text" && email.textContent && (
+            <p className="text-sm text-[#202124] whitespace-pre-line leading-relaxed">
+              {email.textContent}
+            </p>
+          )}
+
+          {(email.type === "tabular" || email.type === "tabular-attachment") && email.tabular && (
+            <TabularEmailBody data={email.tabular} />
+          )}
+
+          {email.type === "tabular-attachment" && (
+            <div className="mt-4 flex flex-col gap-3">
+              <p className="text-xs text-[#5f6368]">Un archivo adjunto · Analizado por Gmail</p>
+              <div
+                className="rounded flex flex-col items-center justify-center gap-1"
+                style={{
+                  width: 200,
+                  height: 120,
+                  backgroundColor: "#e8eaed",
+                  border: "1px solid #dadce0",
+                }}
+              >
+                <span className="text-xs text-[#5f6368]">📍 Mapa de ubicación</span>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function DetalleOperacionScreen({ operationId = "EXM4632-25", onNavigate }: DetalleOperacionProps) {
   const [showGmailModal, setShowGmailModal] = useState(false)
+  const [expandedEmails, setExpandedEmails] = useState<Set<number>>(new Set([5]))
+
+  const threadSubject = `${operationId} / POL:CORONEL / POD:NEW YORK / BUQUE:MSC RAYSHMI / IBERCONSA`
+
+  const openGmailModal = () => {
+    setExpandedEmails(new Set([gmailThread.length - 1]))
+    setShowGmailModal(true)
+  }
+
+  const toggleEmail = (index: number) => {
+    setExpandedEmails((prev) => {
+      const next = new Set(prev)
+      if (next.has(index)) next.delete(index)
+      else next.add(index)
+      return next
+    })
+  }
+
   return (
     <div className="flex flex-col gap-6 p-6">
       {/* Header */}
@@ -270,7 +451,7 @@ export default function DetalleOperacionScreen({ operationId = "EXM4632-25", onN
         </button>
         <button
           type="button"
-          onClick={() => setShowGmailModal(true)}
+          onClick={openGmailModal}
           className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all hover:opacity-80 ml-auto"
           style={{ backgroundColor: "rgba(255,255,255,0.06)", color: "#94a3b8", border: "1px solid rgba(255,255,255,0.08)" }}
         >
@@ -283,77 +464,66 @@ export default function DetalleOperacionScreen({ operationId = "EXM4632-25", onN
       {showGmailModal && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ backgroundColor: "rgba(0,0,0,0.7)" }}
+          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
           onClick={() => setShowGmailModal(false)}
         >
           <div
-            className="w-full max-w-2xl max-h-[85vh] rounded-2xl flex flex-col overflow-hidden"
-            style={{ backgroundColor: "#1e293b", border: "1px solid rgba(255,255,255,0.08)" }}
+            className="w-full max-w-3xl max-h-[90vh] rounded-lg flex flex-col overflow-hidden shadow-2xl"
+            style={{ backgroundColor: "#ffffff" }}
             onClick={(e) => e.stopPropagation()}
           >
+            {/* Header */}
             <div
-              className="px-6 py-5 border-b flex items-start justify-between gap-4"
-              style={{ borderColor: "rgba(255,255,255,0.06)" }}
+              className="px-5 py-4 flex items-start justify-between gap-4 flex-shrink-0"
+              style={{ borderBottom: "1px solid #e8eaed" }}
             >
-              <div>
-                <h2 className="text-base font-bold text-white flex items-center gap-2">
-                  <Mail className="w-4 h-4" style={{ color: "#60a5fa" }} />
-                  Hilo de Gmail — {operationId}
-                </h2>
-                <p className="text-xs mt-1.5" style={{ color: "#64748b" }}>
-                  Asunto: {operationId}/POL:CORONEL/POD:NEW YORK/BUQUE:MSC RAYSHMI/IBERCONSA
-                </p>
+              <h2 className="text-base font-normal text-[#202124] leading-snug pr-4">
+                {threadSubject}
+              </h2>
+              <div className="flex items-center gap-3 flex-shrink-0">
+                <span className="text-sm text-[#5f6368]">3 de 6</span>
+                <button
+                  type="button"
+                  onClick={() => setShowGmailModal(false)}
+                  className="p-1.5 rounded-full transition-colors hover:bg-[#f1f3f4]"
+                  style={{ color: "#5f6368" }}
+                  aria-label="Cerrar"
+                >
+                  <X className="w-5 h-5" />
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={() => setShowGmailModal(false)}
-                className="p-1.5 rounded-lg transition-all hover:opacity-80 flex-shrink-0"
-                style={{ color: "#64748b", backgroundColor: "rgba(255,255,255,0.05)" }}
-                aria-label="Cerrar"
-              >
-                <X className="w-4 h-4" />
-              </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto px-6 py-4 flex flex-col gap-3">
-              {gmailThread.map((email, i) => (
-                <div
-                  key={i}
-                  className="rounded-xl p-4 flex flex-col gap-2"
-                  style={{ backgroundColor: "#0f1f3d", border: "1px solid rgba(255,255,255,0.06)" }}
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex flex-col gap-0.5 min-w-0">
-                      <span className="text-xs font-semibold text-white truncate">{email.from}</span>
-                      <span className="text-xs font-mono" style={{ color: "#475569" }}>{email.date}</span>
-                    </div>
-                    <span
-                      className="flex-shrink-0 px-2 py-0.5 rounded-full text-xs font-semibold"
-                      style={{
-                        backgroundColor: email.badgeBg,
-                        color: email.badgeColor,
-                        border: `1px solid ${email.badgeBorder}`,
-                      }}
-                    >
-                      {email.badge}
-                    </span>
-                  </div>
-                  <p className="text-sm" style={{ color: "#94a3b8" }}>{email.preview}</p>
-                </div>
+            {/* Thread */}
+            <div className="flex-1 overflow-y-auto bg-white">
+              {gmailThread.map((email, index) => (
+                <GmailThreadEmail
+                  key={email.id}
+                  email={email}
+                  expanded={expandedEmails.has(index)}
+                  onToggle={() => toggleEmail(index)}
+                />
               ))}
             </div>
 
+            {/* Bottom bar */}
             <div
-              className="px-6 py-4 border-t"
-              style={{ borderColor: "rgba(255,255,255,0.06)" }}
+              className="px-5 py-3 flex items-center gap-3 flex-shrink-0"
+              style={{ borderTop: "1px solid #e8eaed", backgroundColor: "#ffffff" }}
             >
               <button
                 type="button"
-                onClick={() => setShowGmailModal(false)}
-                className="w-full py-3 rounded-xl text-sm font-semibold transition-all hover:opacity-90"
-                style={{ backgroundColor: "rgba(255,255,255,0.06)", color: "#94a3b8", border: "1px solid rgba(255,255,255,0.08)" }}
+                className="px-5 py-2 rounded-full text-sm font-medium transition-colors hover:bg-[#f6f8fc]"
+                style={{ color: "#1a73e8", border: "1px solid #dadce0" }}
               >
-                Cerrar
+                Responder
+              </button>
+              <button
+                type="button"
+                className="px-5 py-2 rounded-full text-sm font-medium transition-colors hover:bg-[#f6f8fc]"
+                style={{ color: "#1a73e8", border: "1px solid #dadce0" }}
+              >
+                Reenviar
               </button>
             </div>
           </div>
