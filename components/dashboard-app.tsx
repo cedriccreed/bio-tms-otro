@@ -7,8 +7,9 @@ import NuevaOperacionScreen from "./nueva-operacion-screen"
 import DetalleOperacionScreen from "./detalle-operacion-screen"
 import AlertaScreen from "./alerta-screen"
 import ConfiguracionScreen from "./configuracion-screen"
+import VehiculosScreen from "./vehiculos-screen"
 
-type Screen = "dashboard" | "operaciones" | "nueva" | "alertas" | "configuracion" | "detalle" | "alerta"
+type Screen = "dashboard" | "operaciones" | "vehiculos" | "nueva" | "alertas" | "configuracion" | "detalle" | "alerta"
 
 interface DashboardAppProps {
   onLogout: () => void
@@ -26,6 +27,7 @@ export default function DashboardApp({ onLogout }: DashboardAppProps) {
   const screenTitles: Record<Screen, string> = {
     dashboard: "Dashboard",
     operaciones: "Operaciones",
+    vehiculos: "Vehículos",
     nueva: "Nueva Operación",
     alertas: "Alertas",
     configuracion: "Configuración",
@@ -38,6 +40,8 @@ export default function DashboardApp({ onLogout }: DashboardAppProps) {
       case "dashboard":
       case "operaciones":
         return <DashboardScreen onNavigate={handleNavigate} />
+      case "vehiculos":
+        return <VehiculosScreen />
       case "nueva":
         return <NuevaOperacionScreen onNavigate={handleNavigate} />
       case "detalle":

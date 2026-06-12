@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { CheckCircle, Mail, AlertTriangle } from "lucide-react"
+import { CheckCircle, Mail, AlertTriangle, Trash2, Plus } from "lucide-react"
 
 interface NuevaOperacionProps {
   onNavigate: (screen: string) => void
@@ -50,6 +50,71 @@ function TextField({
         onFocus={(e) => (e.target.style.borderColor = "rgba(34,197,94,0.4)")}
         onBlur={(e) => (e.target.style.borderColor = "rgba(255,255,255,0.08)")}
       />
+    </div>
+  )
+}
+
+const SHIPPER = "IBERCONSA"
+
+const destinatariosShipper = [
+  "jessica.hammerschlag@iberconsa.com",
+  "operaciones@iberconsa.com",
+  "exportaciones@iberconsa.com",
+]
+
+const destinatariosPadwor = [
+  "jessica@padwor.com",
+  "alejandro@starb.cl",
+  "customer@padwor.com",
+]
+
+function ContactItem({ email }: { email: string }) {
+  return (
+    <div
+      className="flex items-center justify-between px-3 py-2.5 rounded-lg"
+      style={{ backgroundColor: "rgba(34,197,94,0.06)", border: "1px solid rgba(34,197,94,0.2)" }}
+    >
+      <span className="text-sm text-white flex-1 truncate pr-2">{email}</span>
+      <div className="flex items-center gap-2 flex-shrink-0">
+        <button
+          type="button"
+          className="p-0.5 rounded transition-all hover:opacity-80"
+          style={{ color: "#64748b" }}
+          aria-label="Eliminar destinatario"
+        >
+          <Trash2 className="w-3.5 h-3.5" />
+        </button>
+        <CheckCircle className="w-4 h-4 flex-shrink-0" style={{ color: "#22c55e" }} />
+      </div>
+    </div>
+  )
+}
+
+function DestinatariosColumn({
+  title,
+  contacts,
+}: {
+  title: string
+  contacts: string[]
+}) {
+  return (
+    <div className="flex flex-col gap-4">
+      <label className="text-xs font-medium" style={{ color: "#94a3b8" }}>
+        {title}
+      </label>
+      <div className="flex flex-col gap-2">
+        {contacts.map((email) => (
+          <ContactItem key={email} email={email} />
+        ))}
+      </div>
+      <button
+        type="button"
+        className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:opacity-90 w-full"
+        style={{ backgroundColor: "#22c55e", color: "#0a1628" }}
+      >
+        <Plus className="w-3.5 h-3.5" />
+        Agregar destinatario
+      </button>
     </div>
   )
 }
@@ -201,6 +266,30 @@ export default function NuevaOperacionScreen({ onNavigate }: NuevaOperacionProps
           >
             Continuar a configuración de envíos
           </button>
+        </div>
+
+        {/* STEP 3 — Destinatarios */}
+        <div
+          className="rounded-xl p-5"
+          style={{ backgroundColor: "#1e293b", border: "1px solid rgba(255,255,255,0.06)" }}
+        >
+          <h2 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
+            <span
+              className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold"
+              style={{ backgroundColor: "rgba(34,197,94,0.15)", color: "#22c55e" }}
+            >3</span>
+            Lista de Destinatarios
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <DestinatariosColumn
+              title={`Destinatarios ${SHIPPER}`}
+              contacts={destinatariosShipper}
+            />
+            <DestinatariosColumn
+              title="Contactos Internos Padwor"
+              contacts={destinatariosPadwor}
+            />
+          </div>
         </div>
       </div>
 

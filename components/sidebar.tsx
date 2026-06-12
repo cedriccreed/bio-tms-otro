@@ -3,7 +3,7 @@
 import { Truck, LayoutDashboard, ClipboardList, Plus, Bell, Settings, Circle, Menu, X } from "lucide-react"
 import { useState } from "react"
 
-type Screen = "dashboard" | "operaciones" | "nueva" | "alertas" | "configuracion" | "detalle" | "alerta"
+type Screen = "dashboard" | "operaciones" | "vehiculos" | "nueva" | "alertas" | "configuracion" | "detalle" | "alerta"
 
 interface SidebarProps {
   activeScreen: Screen
@@ -14,6 +14,7 @@ interface SidebarProps {
 const navItems = [
   { id: "dashboard" as Screen, label: "Dashboard", icon: LayoutDashboard },
   { id: "operaciones" as Screen, label: "Operaciones", icon: ClipboardList },
+  { id: "vehiculos" as Screen, label: "Vehículos", icon: Truck },
   { id: "nueva" as Screen, label: "Nueva Operación", icon: Plus },
   { id: "alertas" as Screen, label: "Alertas", icon: Bell, badge: 2 },
   { id: "configuracion" as Screen, label: "Configuración", icon: Settings },

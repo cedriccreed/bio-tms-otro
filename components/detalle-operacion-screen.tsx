@@ -1,6 +1,7 @@
 "use client"
 
-import { RefreshCw, CheckCircle, ExternalLink, MapPin, Clock, Satellite, ChevronLeft } from "lucide-react"
+import { useState } from "react"
+import { RefreshCw, CheckCircle, ExternalLink, MapPin, Clock, Satellite, ChevronLeft, Mail, X } from "lucide-react"
 
 interface DetalleOperacionProps {
   operationId?: string
@@ -27,7 +28,65 @@ const opData = [
   { label: "Booking", value: "BK-98765" },
 ]
 
+const gmailThread = [
+  {
+    from: "jessica@padwor.com",
+    date: "09 Jun 09:00",
+    preview: "Confirmación de booking — IBERCONSA, Puerto Coronel...",
+    badge: "Booking confirmado",
+    badgeColor: "#60a5fa",
+    badgeBg: "rgba(59,130,246,0.15)",
+    badgeBorder: "rgba(59,130,246,0.25)",
+  },
+  {
+    from: "sistema@biotms.cl (automático)",
+    date: "09 Jun 09:00",
+    preview: "UNIDAD RUMBO A PLANTA POR VILLA REGINA",
+    badge: "Auto ✓",
+    badgeColor: "#22c55e",
+    badgeBg: "rgba(34,197,94,0.12)",
+    badgeBorder: "rgba(34,197,94,0.25)",
+  },
+  {
+    from: "sistema@biotms.cl (automático)",
+    date: "09 Jun 18:00",
+    preview: "UNIDAD RUMBO A PLANTA POR CUTRAL CO",
+    badge: "Auto ✓",
+    badgeColor: "#22c55e",
+    badgeBg: "rgba(34,197,94,0.12)",
+    badgeBorder: "rgba(34,197,94,0.25)",
+  },
+  {
+    from: "sistema@biotms.cl (automático)",
+    date: "10 Jun 09:00",
+    preview: "UNIDAD RUMBO A PLANTA POR POMONA",
+    badge: "Auto ✓",
+    badgeColor: "#22c55e",
+    badgeBg: "rgba(34,197,94,0.12)",
+    badgeBorder: "rgba(34,197,94,0.25)",
+  },
+  {
+    from: "sistema@biotms.cl (automático)",
+    date: "10 Jun 18:00",
+    preview: "UNIDAD EN PLANTA",
+    badge: "Auto ✓",
+    badgeColor: "#22c55e",
+    badgeBg: "rgba(34,197,94,0.12)",
+    badgeBorder: "rgba(34,197,94,0.25)",
+  },
+  {
+    from: "sistema@biotms.cl (automático)",
+    date: "11 Jun 09:00",
+    preview: "FULL EN PLANTA A LA ESPERA DE DOCUMENTACIÓN",
+    badge: "Auto ✓",
+    badgeColor: "#22c55e",
+    badgeBg: "rgba(34,197,94,0.12)",
+    badgeBorder: "rgba(34,197,94,0.25)",
+  },
+]
+
 export default function DetalleOperacionScreen({ operationId = "EXM4632-25", onNavigate }: DetalleOperacionProps) {
+  const [showGmailModal, setShowGmailModal] = useState(false)
   return (
     <div className="flex flex-col gap-6 p-6">
       {/* Header */}
@@ -210,6 +269,8 @@ export default function DetalleOperacionScreen({ operationId = "EXM4632-25", onN
           Confirmar Entrega
         </button>
         <button
+          type="button"
+          onClick={() => setShowGmailModal(true)}
           className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all hover:opacity-80 ml-auto"
           style={{ backgroundColor: "rgba(255,255,255,0.06)", color: "#94a3b8", border: "1px solid rgba(255,255,255,0.08)" }}
         >
@@ -217,6 +278,87 @@ export default function DetalleOperacionScreen({ operationId = "EXM4632-25", onN
           Ver Hilo Gmail
         </button>
       </div>
+
+      {/* Modal Hilo Gmail */}
+      {showGmailModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ backgroundColor: "rgba(0,0,0,0.7)" }}
+          onClick={() => setShowGmailModal(false)}
+        >
+          <div
+            className="w-full max-w-2xl max-h-[85vh] rounded-2xl flex flex-col overflow-hidden"
+            style={{ backgroundColor: "#1e293b", border: "1px solid rgba(255,255,255,0.08)" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div
+              className="px-6 py-5 border-b flex items-start justify-between gap-4"
+              style={{ borderColor: "rgba(255,255,255,0.06)" }}
+            >
+              <div>
+                <h2 className="text-base font-bold text-white flex items-center gap-2">
+                  <Mail className="w-4 h-4" style={{ color: "#60a5fa" }} />
+                  Hilo de Gmail — {operationId}
+                </h2>
+                <p className="text-xs mt-1.5" style={{ color: "#64748b" }}>
+                  Asunto: {operationId}/POL:CORONEL/POD:NEW YORK/BUQUE:MSC RAYSHMI/IBERCONSA
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowGmailModal(false)}
+                className="p-1.5 rounded-lg transition-all hover:opacity-80 flex-shrink-0"
+                style={{ color: "#64748b", backgroundColor: "rgba(255,255,255,0.05)" }}
+                aria-label="Cerrar"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto px-6 py-4 flex flex-col gap-3">
+              {gmailThread.map((email, i) => (
+                <div
+                  key={i}
+                  className="rounded-xl p-4 flex flex-col gap-2"
+                  style={{ backgroundColor: "#0f1f3d", border: "1px solid rgba(255,255,255,0.06)" }}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex flex-col gap-0.5 min-w-0">
+                      <span className="text-xs font-semibold text-white truncate">{email.from}</span>
+                      <span className="text-xs font-mono" style={{ color: "#475569" }}>{email.date}</span>
+                    </div>
+                    <span
+                      className="flex-shrink-0 px-2 py-0.5 rounded-full text-xs font-semibold"
+                      style={{
+                        backgroundColor: email.badgeBg,
+                        color: email.badgeColor,
+                        border: `1px solid ${email.badgeBorder}`,
+                      }}
+                    >
+                      {email.badge}
+                    </span>
+                  </div>
+                  <p className="text-sm" style={{ color: "#94a3b8" }}>{email.preview}</p>
+                </div>
+              ))}
+            </div>
+
+            <div
+              className="px-6 py-4 border-t"
+              style={{ borderColor: "rgba(255,255,255,0.06)" }}
+            >
+              <button
+                type="button"
+                onClick={() => setShowGmailModal(false)}
+                className="w-full py-3 rounded-xl text-sm font-semibold transition-all hover:opacity-90"
+                style={{ backgroundColor: "rgba(255,255,255,0.06)", color: "#94a3b8", border: "1px solid rgba(255,255,255,0.08)" }}
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
