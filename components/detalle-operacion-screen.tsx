@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { RefreshCw, CheckCircle, ExternalLink, MapPin, Clock, Satellite, ChevronLeft, X } from "lucide-react"
+import { OPERATIONS_MOCK } from "@/lib/mock-data"
 
 interface DetalleOperacionProps {
   operationId?: string
@@ -28,40 +29,47 @@ interface GmailEmail {
 }
 
 const timelineEvents = [
-  { done: true, date: "09 Jun 09:00", text: "Email enviado: UNIDAD RUMBO A PLANTA POR VILLA REGINA" },
-  { done: true, date: "09 Jun 18:00", text: "Email enviado: UNIDAD RUMBO A PLANTA POR CUTRAL CO" },
-  { done: true, date: "10 Jun 09:00", text: "Email enviado: UNIDAD RUMBO A PLANTA POR POMONA" },
-  { done: true, date: "10 Jun 18:00", text: "Email enviado: UNIDAD EN PLANTA" },
-  { done: true, date: "11 Jun 09:00", text: "Email enviado: FULL EN PLANTA A LA ESPERA DE DOCUMENTACIÓN" },
+  { done: true, date: "09 Jun 09:00", text: "Email enviado: UNIDAD SALIÓ DE SAN ANTONIO" },
+  { done: true, date: "09 Jun 18:00", text: "Email enviado: UNIDAD EN RUTA 5 SUR — ZONA CURANILAHUE" },
+  { done: true, date: "10 Jun 09:00", text: "Email enviado: UNIDAD EN RUTA 5 SUR — ZONA CHILLÁN" },
+  { done: true, date: "10 Jun 18:00", text: "Email enviado: UNIDAD EN RUTA HACIA LINARES" },
+  { done: true, date: "11 Jun 09:00", text: "Email enviado: CARGA EN TRÁNSITO — SIN NOVEDADES" },
   { done: false, date: "11 Jun 18:00", text: "Próximo envío programado" },
 ]
 
-const opData = [
-  { label: "POL", value: "Coronel" },
-  { label: "POD", value: "New York" },
-  { label: "Buque", value: "MSC Rayshmi" },
-  { label: "Placa", value: "AA-BB-11" },
-  { label: "Chofer", value: "Juan Pérez" },
-  { label: "Contenedor", value: "MSCU1234567" },
-  { label: "Naviera", value: "MSC" },
-  { label: "Booking", value: "BK-98765" },
-]
+function getOpDetail(operationId: string) {
+  const op = OPERATIONS_MOCK.find((o) => o.id === operationId) ?? OPERATIONS_MOCK[0]
+  const [origen, destino] = op.ruta.includes("→")
+    ? op.ruta.split("—")[1]?.trim().split("→").map((s) => s.trim()) ?? ["San Antonio", "Destino"]
+    : ["San Antonio", "Destino"]
+  return {
+    cliente: op.shipper,
+    ruta: op.ruta,
+    placa: op.placa,
+    chofer: op.conductor,
+    origen: origen ?? "San Antonio",
+    destino: destino ?? "Linares",
+    guia: `GD-2026-${operationId.replace("OP-", "")}458`,
+    carga: "Pallets alimentos refrigerados",
+    transportista: "Transportes BioLogística",
+  }
+}
 
-const gmailThread: GmailEmail[] = [
+function buildGmailThread(operationId: string, cliente: string): GmailEmail[] {
+  return [
   {
     id: 1,
-    avatar: "JP",
+    avatar: "DM",
     avatarBg: "#0b8043",
-    sender: "Jessica <jessica@tms.cl>",
+    sender: "Operaciones <contacto@maulesur.cl>",
     date: "lun, 9 jun, 09:00",
-    preview: "Confirmación de booking — IBERCONSA, Puerto Coronel...",
+    preview: `Confirmación de despacho — ${cliente}, San Antonio...`,
     type: "text",
     textContent: `Estimados,
-Confirmamos el booking para la operación EXM4632-25.
-Cliente: IBERCONSA
-POL: Coronel | POD: New York
-Buque: MSC Rayshmi
-Fecha consolidación: 31 oct`,
+Confirmamos la orden de transporte ${operationId}.
+Cliente: ${cliente}
+Ruta: Ruta 5 Sur — San Antonio → Linares
+Fecha despacho: 9 jun 2026`,
   },
   {
     id: 2,
@@ -72,10 +80,10 @@ Fecha consolidación: 31 oct`,
     preview: "...",
     type: "tabular",
     tabular: {
-      op: "EXM4632-25",
-      shipper: "IBERCONSA",
-      status: "UNIDAD RUMBO A PLANTA POR VILLA REGINA",
-      transporte: "LOGISTICA STARB",
+      op: operationId,
+      shipper: cliente,
+      status: "UNIDAD SALIÓ DE SAN ANTONIO",
+      transporte: "TRANSPORTES BIOLOGÍSTICA",
     },
   },
   {
@@ -87,10 +95,10 @@ Fecha consolidación: 31 oct`,
     preview: "...",
     type: "tabular",
     tabular: {
-      op: "EXM4632-25",
-      shipper: "IBERCONSA",
-      status: "UNIDAD RUMBO A PLANTA POR CUTRAL CO",
-      transporte: "LOGISTICA STARB",
+      op: operationId,
+      shipper: cliente,
+      status: "UNIDAD EN RUTA 5 SUR — ZONA CURANILAHUE",
+      transporte: "TRANSPORTES BIOLOGÍSTICA",
     },
   },
   {
@@ -102,10 +110,10 @@ Fecha consolidación: 31 oct`,
     preview: "...",
     type: "tabular",
     tabular: {
-      op: "EXM4632-25",
-      shipper: "IBERCONSA",
-      status: "UNIDAD RUMBO A PLANTA POR POMONA",
-      transporte: "LOGISTICA STARB",
+      op: operationId,
+      shipper: cliente,
+      status: "UNIDAD EN RUTA 5 SUR — ZONA CHILLÁN",
+      transporte: "TRANSPORTES BIOLOGÍSTICA",
     },
   },
   {
@@ -117,10 +125,10 @@ Fecha consolidación: 31 oct`,
     preview: "...",
     type: "tabular",
     tabular: {
-      op: "EXM4632-25",
-      shipper: "IBERCONSA",
-      status: "UNIDAD EN PLANTA",
-      transporte: "LOGISTICA STARB",
+      op: operationId,
+      shipper: cliente,
+      status: "UNIDAD EN RUTA HACIA LINARES",
+      transporte: "TRANSPORTES BIOLOGÍSTICA",
     },
   },
   {
@@ -132,13 +140,14 @@ Fecha consolidación: 31 oct`,
     preview: "...",
     type: "tabular-attachment",
     tabular: {
-      op: "EXM4632-25",
-      shipper: "IBERCONSA",
-      status: "FULL EN PLANTA A LA ESPERA DE DOCUMENTACIÓN",
-      transporte: "LOGISTICA STARB",
+      op: operationId,
+      shipper: cliente,
+      status: "CARGA EN TRÁNSITO — SIN NOVEDADES",
+      transporte: "TRANSPORTES BIOLOGÍSTICA",
     },
   },
 ]
+}
 
 function TabularEmailBody({ data }: { data: TabularData }) {
   return (
@@ -152,7 +161,7 @@ function TabularEmailBody({ data }: { data: TabularData }) {
           <tbody>
             {[
               ["OP", data.op],
-              ["SHIPPER", data.shipper],
+              ["CLIENTE", data.shipper],
               ["STATUS", data.status],
               ["TRANSPORTE", data.transporte],
             ].map(([label, value]) => (
@@ -188,7 +197,7 @@ function GmailThreadEmail({
       >
         <div className="flex items-start gap-3">
           <div
-            className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 text-sm font-semibold text-white"
+            className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 text-sm font-semibold text-gray-900"
             style={{ backgroundColor: email.avatarBg }}
           >
             {email.avatar}
@@ -248,11 +257,23 @@ function GmailThreadEmail({
   )
 }
 
-export default function DetalleOperacionScreen({ operationId = "EXM4632-25", onNavigate }: DetalleOperacionProps) {
+export default function DetalleOperacionScreen({ operationId = "OP-001", onNavigate }: DetalleOperacionProps) {
   const [showGmailModal, setShowGmailModal] = useState(false)
   const [expandedEmails, setExpandedEmails] = useState<Set<number>>(new Set([5]))
 
-  const threadSubject = `${operationId} / POL:CORONEL / POD:NEW YORK / BUQUE:MSC RAYSHMI / IBERCONSA`
+  const detail = getOpDetail(operationId)
+  const opData = [
+    { label: "Origen", value: detail.origen },
+    { label: "Destino", value: detail.destino },
+    { label: "Ruta", value: detail.ruta },
+    { label: "Placa", value: detail.placa },
+    { label: "Chofer", value: detail.chofer },
+    { label: "Guía despacho", value: detail.guia },
+    { label: "Tipo carga", value: detail.carga },
+    { label: "Transportista", value: detail.transportista },
+  ]
+  const gmailThread = buildGmailThread(operationId, detail.cliente)
+  const threadSubject = `${operationId} / ${detail.ruta} / ${detail.cliente}`
 
   const openGmailModal = () => {
     setExpandedEmails(new Set([gmailThread.length - 1]))
@@ -275,18 +296,18 @@ export default function DetalleOperacionScreen({ operationId = "EXM4632-25", onN
         <button
           onClick={() => onNavigate("dashboard")}
           className="flex items-center gap-1 text-xs transition-all hover:opacity-80"
-          style={{ color: "#64748b" }}
+          style={{ color: "#9ca3af" }}
         >
           <ChevronLeft className="w-4 h-4" />
           Dashboard
         </button>
-        <span style={{ color: "#334155" }}>/</span>
+        <span style={{ color: "#9ca3af" }}>/</span>
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-xl font-bold text-white">{operationId} — IBERCONSA</h1>
+            <h1 className="text-xl font-bold text-gray-900">{operationId} — {detail.cliente}</h1>
             <span
               className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold"
-              style={{ backgroundColor: "rgba(234,179,8,0.12)", color: "#eab308", border: "1px solid rgba(234,179,8,0.25)" }}
+              style={{ backgroundColor: "rgba(234,179,8,0.12)", color: "#ca8a04", border: "1px solid rgba(234,179,8,0.25)" }}
             >
               <span className="w-1.5 h-1.5 rounded-full bg-yellow-400" />
               EN TRÁNSITO
@@ -298,16 +319,16 @@ export default function DetalleOperacionScreen({ operationId = "EXM4632-25", onN
       {/* Operation data cards */}
       <div
         className="rounded-xl p-5"
-        style={{ backgroundColor: "#1e293b", border: "1px solid rgba(255,255,255,0.06)" }}
+        style={{ backgroundColor: "#ffffff", border: "1px solid #e5e7eb" }}
       >
-        <h2 className="text-xs font-semibold uppercase tracking-wider mb-4" style={{ color: "#475569" }}>
+        <h2 className="text-xs font-semibold uppercase tracking-wider mb-4" style={{ color: "#9ca3af" }}>
           Datos de la Operación
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {opData.map(({ label, value }) => (
             <div key={label} className="flex flex-col gap-0.5">
-              <span className="text-xs" style={{ color: "#475569" }}>{label}</span>
-              <span className="text-sm font-semibold text-white">{value}</span>
+              <span className="text-xs" style={{ color: "#9ca3af" }}>{label}</span>
+              <span className="text-sm font-semibold text-gray-900">{value}</span>
             </div>
           ))}
         </div>
@@ -318,14 +339,14 @@ export default function DetalleOperacionScreen({ operationId = "EXM4632-25", onN
         {/* Timeline */}
         <div
           className="lg:col-span-3 rounded-xl p-5"
-          style={{ backgroundColor: "#1e293b", border: "1px solid rgba(255,255,255,0.06)" }}
+          style={{ backgroundColor: "#ffffff", border: "1px solid #e5e7eb" }}
         >
-          <h2 className="text-sm font-semibold text-white mb-5">Historial de Eventos</h2>
+          <h2 className="text-sm font-semibold text-gray-900 mb-5">Historial de Eventos</h2>
           <div className="relative flex flex-col gap-0">
             {/* Vertical line */}
             <div
               className="absolute left-3.5 top-3 bottom-8 w-px"
-              style={{ backgroundColor: "rgba(255,255,255,0.07)" }}
+              style={{ backgroundColor: "#e5e7eb" }}
             />
             {timelineEvents.map((event, i) => (
               <div key={i} className="flex items-start gap-4 pb-5 last:pb-0 relative">
@@ -333,19 +354,19 @@ export default function DetalleOperacionScreen({ operationId = "EXM4632-25", onN
                 <div
                   className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center z-10"
                   style={{
-                    backgroundColor: event.done ? "rgba(34,197,94,0.15)" : "rgba(59,130,246,0.12)",
-                    border: `1px solid ${event.done ? "rgba(34,197,94,0.4)" : "rgba(59,130,246,0.3)"}`,
+                    backgroundColor: event.done ? "rgba(0,0,0,0.08)" : "rgba(59,130,246,0.12)",
+                    border: `1px solid ${event.done ? "#000000" : "rgba(59,130,246,0.3)"}`,
                   }}
                 >
                   {event.done ? (
-                    <CheckCircle className="w-3.5 h-3.5" style={{ color: "#22c55e" }} />
+                    <CheckCircle className="w-3.5 h-3.5" style={{ color: "#16a34a" }} />
                   ) : (
-                    <RefreshCw className="w-3 h-3 animate-spin" style={{ color: "#60a5fa" }} />
+                    <RefreshCw className="w-3 h-3 animate-spin" style={{ color: "#2563eb" }} />
                   )}
                 </div>
                 <div className="flex flex-col gap-0.5 pt-0.5">
-                  <span className="text-xs font-mono" style={{ color: "#475569" }}>{event.date}</span>
-                  <span className="text-sm" style={{ color: event.done ? "#cbd5e1" : "#60a5fa" }}>
+                  <span className="text-xs font-mono" style={{ color: "#9ca3af" }}>{event.date}</span>
+                  <span className="text-sm" style={{ color: event.done ? "#374151" : "#2563eb" }}>
                     {event.text}
                   </span>
                 </div>
@@ -358,58 +379,58 @@ export default function DetalleOperacionScreen({ operationId = "EXM4632-25", onN
         <div className="lg:col-span-2 flex flex-col gap-4">
           <div
             className="rounded-xl p-5 flex flex-col gap-4"
-            style={{ backgroundColor: "#1e293b", border: "1px solid rgba(255,255,255,0.06)" }}
+            style={{ backgroundColor: "#ffffff", border: "1px solid #e5e7eb" }}
           >
-            <h2 className="text-sm font-semibold text-white">Información GPS</h2>
+            <h2 className="text-sm font-semibold text-gray-900">Información GPS</h2>
 
             <div className="flex flex-col gap-3">
               <div
                 className="flex items-center gap-3 p-3 rounded-lg"
-                style={{ backgroundColor: "rgba(34,197,94,0.06)", border: "1px solid rgba(34,197,94,0.15)" }}
+                style={{ backgroundColor: "rgba(0,0,0,0.04)", border: "1px solid rgba(0,0,0,0.08)" }}
               >
                 <div
                   className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                  style={{ backgroundColor: "rgba(34,197,94,0.12)" }}
+                  style={{ backgroundColor: "rgba(0,0,0,0.06)" }}
                 >
-                  <MapPin className="w-4 h-4" style={{ color: "#22c55e" }} />
+                  <MapPin className="w-4 h-4" style={{ color: "#16a34a" }} />
                 </div>
                 <div>
-                  <p className="text-xs" style={{ color: "#64748b" }}>Posición actual</p>
-                  <p className="text-sm font-semibold text-white">Cutral Co, Neuquén</p>
+                  <p className="text-xs" style={{ color: "#9ca3af" }}>Posición actual</p>
+                  <p className="text-sm font-semibold text-gray-900">Chillán, Región de Ñuble</p>
                 </div>
               </div>
 
               <div
                 className="flex items-center gap-3 p-3 rounded-lg"
-                style={{ backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
+                style={{ backgroundColor: "#f9fafb", border: "1px solid #e5e7eb" }}
               >
                 <div
                   className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                  style={{ backgroundColor: "rgba(59,130,246,0.1)" }}
+                  style={{ backgroundColor: "#eff6ff" }}
                 >
-                  <Clock className="w-4 h-4" style={{ color: "#60a5fa" }} />
+                  <Clock className="w-4 h-4" style={{ color: "#2563eb" }} />
                 </div>
                 <div>
-                  <p className="text-xs" style={{ color: "#64748b" }}>Última actualización</p>
-                  <p className="text-sm font-semibold text-white">hace 3 minutos</p>
+                  <p className="text-xs" style={{ color: "#9ca3af" }}>Última actualización</p>
+                  <p className="text-sm font-semibold text-gray-900">hace 3 minutos</p>
                 </div>
               </div>
 
               <div
                 className="flex items-center gap-3 p-3 rounded-lg"
-                style={{ backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
+                style={{ backgroundColor: "#f9fafb", border: "1px solid #e5e7eb" }}
               >
                 <div
                   className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                  style={{ backgroundColor: "rgba(34,197,94,0.1)" }}
+                  style={{ backgroundColor: "rgba(0,0,0,0.06)" }}
                 >
-                  <Satellite className="w-4 h-4" style={{ color: "#22c55e" }} />
+                  <Satellite className="w-4 h-4" style={{ color: "#16a34a" }} />
                 </div>
                 <div>
-                  <p className="text-xs" style={{ color: "#64748b" }}>Plataforma</p>
+                  <p className="text-xs" style={{ color: "#9ca3af" }}>Plataforma</p>
                   <div className="flex items-center gap-1.5">
-                    <p className="text-sm font-semibold text-white">BioGPS</p>
-                    <CheckCircle className="w-3.5 h-3.5" style={{ color: "#22c55e" }} />
+                    <p className="text-sm font-semibold text-gray-900">BioGPS</p>
+                    <CheckCircle className="w-3.5 h-3.5" style={{ color: "#16a34a" }} />
                   </div>
                 </div>
               </div>
@@ -418,11 +439,11 @@ export default function DetalleOperacionScreen({ operationId = "EXM4632-25", onN
             {/* Mini map placeholder */}
             <div
               className="rounded-lg h-32 flex items-center justify-center"
-              style={{ backgroundColor: "#0f1f3d", border: "1px solid rgba(255,255,255,0.06)" }}
+              style={{ backgroundColor: "#f9fafb", border: "1px solid #e5e7eb" }}
             >
               <div className="flex flex-col items-center gap-1.5">
-                <MapPin className="w-5 h-5" style={{ color: "#334155" }} />
-                <span className="text-xs" style={{ color: "#334155" }}>Mapa BioGPS</span>
+                <MapPin className="w-5 h-5" style={{ color: "#9ca3af" }} />
+                <span className="text-xs" style={{ color: "#9ca3af" }}>Mapa BioGPS</span>
               </div>
             </div>
           </div>
@@ -432,19 +453,19 @@ export default function DetalleOperacionScreen({ operationId = "EXM4632-25", onN
       {/* Bottom action bar */}
       <div
         className="rounded-xl p-4 flex flex-wrap items-center gap-3"
-        style={{ backgroundColor: "#1e293b", border: "1px solid rgba(255,255,255,0.06)" }}
+        style={{ backgroundColor: "#ffffff", border: "1px solid #e5e7eb" }}
       >
         <button
           className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all hover:opacity-90"
-          style={{ backgroundColor: "rgba(59,130,246,0.15)", color: "#60a5fa", border: "1px solid rgba(59,130,246,0.2)" }}
+          style={{ backgroundColor: "#eff6ff", color: "#2563eb", border: "1px solid #bfdbfe" }}
         >
           <RefreshCw className="w-4 h-4" />
           Reenviar Status Ahora
         </button>
         <button
           onClick={() => onNavigate("alerta")}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all hover:opacity-90"
-          style={{ backgroundColor: "#22c55e", color: "#0a1628" }}
+          className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all hover:opacity-90 text-white"
+          style={{ backgroundColor: "#000000", color: "#ffffff" }}
         >
           <CheckCircle className="w-4 h-4" />
           Confirmar Entrega
@@ -453,7 +474,7 @@ export default function DetalleOperacionScreen({ operationId = "EXM4632-25", onN
           type="button"
           onClick={openGmailModal}
           className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all hover:opacity-80 ml-auto"
-          style={{ backgroundColor: "rgba(255,255,255,0.06)", color: "#94a3b8", border: "1px solid rgba(255,255,255,0.08)" }}
+          style={{ backgroundColor: "#f3f4f6", color: "#6b7280", border: "1px solid #e5e7eb" }}
         >
           <ExternalLink className="w-4 h-4" />
           Ver Hilo Gmail

@@ -1,7 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { Plus, Pencil, Trash2, X, Wrench, Clock, Loader, CheckCircle2 } from "lucide-react"
+import { Plus, Pencil, Trash2, X, Wrench, Clock, Loader, CheckCircle2, FileText } from "lucide-react"
+import { MANTENIMIENTOS_MOCK, VEHICULO_PLACAS } from "@/lib/mock-data"
 
 interface MantenimientosScreenProps {
   onNavigate: (screen: string, opId?: string) => void
@@ -26,56 +27,14 @@ interface MantenimientoForm {
   estado: EstadoMantenimiento
 }
 
-const VEHICULOS = ["JRVK23", "CJYD40", "FPDW58", "JWYJ27", "HKSW55"]
 const ESTADOS: EstadoMantenimiento[] = ["Pendiente", "En proceso", "Completado"]
 
-const initialMantenimientos: Mantenimiento[] = [
-  {
-    id: "MNT-001",
-    tipoServicio: "Cambio de aceite",
-    fecha: "2026-06-25",
-    vehiculo: "CJYD40",
-    costo: 85000,
-    estado: "Pendiente",
-  },
-  {
-    id: "MNT-002",
-    tipoServicio: "Revisión técnica",
-    fecha: "2026-06-22",
-    vehiculo: "FPDW58",
-    costo: 120000,
-    estado: "En proceso",
-  },
-  {
-    id: "MNT-003",
-    tipoServicio: "Cambio de neumáticos",
-    fecha: "2026-06-20",
-    vehiculo: "JRVK23",
-    costo: 480000,
-    estado: "Completado",
-  },
-  {
-    id: "MNT-004",
-    tipoServicio: "Revisión de frenos",
-    fecha: "2026-06-28",
-    vehiculo: "JWYJ27",
-    costo: 95000,
-    estado: "Pendiente",
-  },
-  {
-    id: "MNT-005",
-    tipoServicio: "Cambio de filtros",
-    fecha: "2026-06-18",
-    vehiculo: "HKSW55",
-    costo: 65000,
-    estado: "Completado",
-  },
-]
+const initialMantenimientos: Mantenimiento[] = MANTENIMIENTOS_MOCK.map((m) => ({ ...m }))
 
 const emptyForm: MantenimientoForm = {
   tipoServicio: "",
   fecha: "",
-  vehiculo: VEHICULOS[0],
+  vehiculo: VEHICULO_PLACAS[0],
   costo: "",
   estado: "Pendiente",
 }
@@ -83,11 +42,11 @@ const emptyForm: MantenimientoForm = {
 function estadoBadgeStyle(estado: EstadoMantenimiento): { bg: string; color: string; border: string } {
   switch (estado) {
     case "Pendiente":
-      return { bg: "rgba(249,115,22,0.12)", color: "#fb923c", border: "rgba(249,115,22,0.25)" }
+      return { bg: "rgba(249,115,22,0.12)", color: "#ea580c", border: "rgba(249,115,22,0.25)" }
     case "En proceso":
-      return { bg: "rgba(59,130,246,0.12)", color: "#60a5fa", border: "rgba(59,130,246,0.25)" }
+      return { bg: "rgba(59,130,246,0.12)", color: "#2563eb", border: "rgba(59,130,246,0.25)" }
     case "Completado":
-      return { bg: "rgba(34,197,94,0.12)", color: "#22c55e", border: "rgba(34,197,94,0.25)" }
+      return { bg: "rgba(0,0,0,0.06)", color: "#16a34a", border: "rgba(0,0,0,0.2)" }
   }
 }
 
@@ -123,19 +82,19 @@ function TextField({
 }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <label className="text-xs font-medium" style={{ color: "#94a3b8" }}>
+      <label className="text-xs font-medium" style={{ color: "#6b7280" }}>
         {label}
-        {required && <span style={{ color: "#ef4444" }}> *</span>}
+        {required && <span style={{ color: "#dc2626" }}> *</span>}
       </label>
       <input
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         required={required}
-        className="px-3 py-2.5 rounded-lg text-sm text-white placeholder:text-slate-600 outline-none transition-all"
-        style={{ backgroundColor: "#0f1f3d", border: "1px solid rgba(255,255,255,0.08)" }}
-        onFocus={(e) => (e.target.style.borderColor = "rgba(34,197,94,0.4)")}
-        onBlur={(e) => (e.target.style.borderColor = "rgba(255,255,255,0.08)")}
+        className="px-3 py-2.5 rounded-lg text-sm text-gray-900 placeholder:text-gray-400 outline-none transition-all"
+        style={{ backgroundColor: "#f9fafb", border: "1px solid #e5e7eb" }}
+        onFocus={(e) => (e.target.style.borderColor = "#000000")}
+        onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
       />
     </div>
   )
@@ -156,21 +115,21 @@ function SelectField({
 }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <label className="text-xs font-medium" style={{ color: "#94a3b8" }}>
+      <label className="text-xs font-medium" style={{ color: "#6b7280" }}>
         {label}
-        {required && <span style={{ color: "#ef4444" }}> *</span>}
+        {required && <span style={{ color: "#dc2626" }}> *</span>}
       </label>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
         required={required}
-        className="px-3 py-2.5 rounded-lg text-sm text-white outline-none transition-all cursor-pointer"
-        style={{ backgroundColor: "#0f1f3d", border: "1px solid rgba(255,255,255,0.08)" }}
-        onFocus={(e) => (e.target.style.borderColor = "rgba(34,197,94,0.4)")}
-        onBlur={(e) => (e.target.style.borderColor = "rgba(255,255,255,0.08)")}
+        className="px-3 py-2.5 rounded-lg text-sm text-gray-900 outline-none transition-all cursor-pointer"
+        style={{ backgroundColor: "#f9fafb", border: "1px solid #e5e7eb" }}
+        onFocus={(e) => (e.target.style.borderColor = "#000000")}
+        onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
       >
         {options.map((opt) => (
-          <option key={opt} value={opt} style={{ backgroundColor: "#0f1f3d" }}>
+          <option key={opt} value={opt} style={{ backgroundColor: "#f9fafb" }}>
             {opt}
           </option>
         ))}
@@ -202,21 +161,21 @@ function MantenimientoModal({
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ backgroundColor: "rgba(0,0,0,0.7)" }}
+      style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
       onClick={onClose}
     >
       <div
         className="w-full max-w-md rounded-2xl p-6 flex flex-col gap-4"
-        style={{ backgroundColor: "#1e293b", border: "1px solid rgba(255,255,255,0.08)" }}
+        style={{ backgroundColor: "#ffffff", border: "1px solid #e5e7eb" }}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between">
-          <h2 className="text-base font-bold text-white">{title}</h2>
+          <h2 className="text-base font-bold text-gray-900">{title}</h2>
           <button
             type="button"
             onClick={onClose}
             className="p-1.5 rounded-lg transition-all hover:opacity-80"
-            style={{ color: "#64748b" }}
+            style={{ color: "#9ca3af" }}
             aria-label="Cerrar"
           >
             <X className="w-4 h-4" />
@@ -241,7 +200,7 @@ function MantenimientoModal({
             label="Vehículo"
             value={form.vehiculo}
             onChange={(vehiculo) => onChange({ ...form, vehiculo })}
-            options={VEHICULOS}
+            options={[...VEHICULO_PLACAS]}
             required
           />
           <TextField
@@ -265,17 +224,17 @@ function MantenimientoModal({
               onClick={onClose}
               className="flex-1 py-2.5 rounded-xl text-sm font-medium transition-all hover:opacity-80"
               style={{
-                backgroundColor: "rgba(255,255,255,0.06)",
-                color: "#94a3b8",
-                border: "1px solid rgba(255,255,255,0.08)",
+                backgroundColor: "#f3f4f6",
+                color: "#6b7280",
+                border: "1px solid #e5e7eb",
               }}
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all hover:opacity-90"
-              style={{ backgroundColor: "#22c55e", color: "#0a1628" }}
+              className="flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all hover:opacity-90 text-white"
+              style={{ backgroundColor: "#000000", color: "#ffffff" }}
             >
               {saveLabel}
             </button>
@@ -294,12 +253,75 @@ export default function MantenimientosScreen({ onNavigate }: MantenimientosScree
   const [createForm, setCreateForm] = useState<MantenimientoForm>(emptyForm)
   const [editForm, setEditForm] = useState<MantenimientoForm>(emptyForm)
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [filtroPeriodo, setFiltroPeriodo] = useState("todos")
+
+  const hoy = new Date()
+
+  const mantenimientosFiltrados = mantenimientos.filter((m) => {
+    const fecha = new Date(m.fecha)
+    if (filtroPeriodo === "semana") {
+      const inicioSemana = new Date(hoy)
+      inicioSemana.setDate(hoy.getDate() - 7)
+      return fecha >= inicioSemana
+    }
+    if (filtroPeriodo === "mes") {
+      return fecha.getMonth() === hoy.getMonth() && fecha.getFullYear() === hoy.getFullYear()
+    }
+    if (filtroPeriodo === "trimestre") {
+      const inicioTrimestre = new Date(hoy)
+      inicioTrimestre.setMonth(hoy.getMonth() - 3)
+      return fecha >= inicioTrimestre
+    }
+    if (filtroPeriodo === "anio") {
+      return fecha.getFullYear() === hoy.getFullYear()
+    }
+    return true
+  })
+
+  const totalCosto = mantenimientosFiltrados.reduce((sum, m) => sum + m.costo, 0)
 
   const stats = {
-    total: mantenimientos.length,
-    pendientes: mantenimientos.filter((m) => m.estado === "Pendiente").length,
-    enProceso: mantenimientos.filter((m) => m.estado === "En proceso").length,
-    completados: mantenimientos.filter((m) => m.estado === "Completado").length,
+    total: mantenimientosFiltrados.length,
+    pendientes: mantenimientosFiltrados.filter((m) => m.estado === "Pendiente").length,
+    enProceso: mantenimientosFiltrados.filter((m) => m.estado === "En proceso").length,
+    completados: mantenimientosFiltrados.filter((m) => m.estado === "Completado").length,
+  }
+
+  const periodoLabel: Record<string, string> = {
+    todos: "Todos",
+    semana: "Esta semana",
+    mes: "Este mes",
+    trimestre: "Este trimestre",
+    anio: "Este año",
+  }
+
+  const handleGenerarInforme = () => {
+    const lines = [
+      "INFORME DE MANTENIMIENTOS — TMS",
+      "================================",
+      `Período: ${filtroPeriodo === "todos" ? "Todos" : periodoLabel[filtroPeriodo] ?? filtroPeriodo}`,
+      `Fecha de generación: ${new Date().toLocaleDateString("es-CL")}`,
+      "",
+      "DETALLE DE MANTENIMIENTOS:",
+      "================================",
+      ...mantenimientosFiltrados.map(
+        (m) =>
+          `${m.id} | ${m.vehiculo} | ${m.tipoServicio} | ${m.fecha} | ${m.costo.toLocaleString("es-CL")} CLP | ${m.estado}`
+      ),
+      "",
+      "================================",
+      `TOTAL GASTOS: ${totalCosto.toLocaleString("es-CL")} CLP`,
+      `Total registros: ${mantenimientosFiltrados.length}`,
+    ]
+
+    const content = lines.join("\n")
+    const blob = new Blob([content], { type: "text/plain" })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = `informe-mantenimientos-${new Date().toISOString().split("T")[0]}.txt`
+    a.click()
+    URL.revokeObjectURL(url)
   }
 
   const openCreateModal = () => {
@@ -370,34 +392,77 @@ export default function MantenimientosScreen({ onNavigate }: MantenimientosScree
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-xl font-bold text-white">Mantenimientos</h1>
-            <p className="text-sm mt-0.5" style={{ color: "#64748b" }}>
+            <h1 className="text-xl font-bold text-gray-900">Mantenimientos</h1>
+            <p className="text-sm mt-0.5" style={{ color: "#9ca3af" }}>
               Registro y seguimiento de mantenimiento de vehículos
             </p>
           </div>
-          <button
-            type="button"
-            onClick={openCreateModal}
-            className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all hover:opacity-90"
-            style={{ backgroundColor: "#22c55e", color: "#0a1628" }}
+          <div className="flex flex-col sm:flex-row gap-2">
+            <button
+              type="button"
+              onClick={handleGenerarInforme}
+              className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all hover:opacity-90 text-white"
+              style={{ backgroundColor: "#000000", color: "#ffffff" }}
+            >
+              <FileText className="w-4 h-4" />
+              Generar informe
+            </button>
+            <button
+              type="button"
+              onClick={openCreateModal}
+              className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all hover:opacity-90 text-white"
+              style={{ backgroundColor: "#000000", color: "#ffffff" }}
+            >
+              <Plus className="w-4 h-4" />
+              Nuevo Mantenimiento
+            </button>
+          </div>
+        </div>
+
+        {/* Filtro por período */}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+          <label className="text-xs font-medium" style={{ color: "#6b7280" }}>
+            Período
+          </label>
+          <select
+            value={filtroPeriodo}
+            onChange={(e) => setFiltroPeriodo(e.target.value)}
+            className="px-3 py-2.5 rounded-lg text-sm text-gray-900 outline-none transition-all cursor-pointer sm:max-w-xs"
+            style={{ backgroundColor: "#f9fafb", border: "1px solid #e5e7eb" }}
+            onFocus={(e) => (e.target.style.borderColor = "#000000")}
+            onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
           >
-            <Plus className="w-4 h-4" />
-            Nuevo Mantenimiento
-          </button>
+            <option value="todos">Todos los períodos</option>
+            <option value="semana">Esta semana</option>
+            <option value="mes">Este mes</option>
+            <option value="trimestre">Este trimestre</option>
+            <option value="anio">Este año</option>
+          </select>
+        </div>
+
+        {/* Resumen total gastos */}
+        <div
+          className="rounded-xl px-5 py-4 flex items-center justify-between gap-4"
+          style={{ backgroundColor: "#000000", color: "#ffffff" }}
+        >
+          <span className="text-sm font-medium">Total gastos del período</span>
+          <span className="text-lg font-bold">
+            ${totalCosto.toLocaleString("es-CL")} CLP
+          </span>
         </div>
 
         {/* Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {[
-            { icon: Wrench, label: "Total", value: stats.total, color: "#94a3b8", bg: "rgba(148,163,184,0.1)" },
-            { icon: Clock, label: "Pendientes", value: stats.pendientes, color: "#fb923c", bg: "rgba(249,115,22,0.1)" },
-            { icon: Loader, label: "En Proceso", value: stats.enProceso, color: "#60a5fa", bg: "rgba(59,130,246,0.1)" },
-            { icon: CheckCircle2, label: "Completados", value: stats.completados, color: "#22c55e", bg: "rgba(34,197,94,0.1)" },
+            { icon: Wrench, label: "Total", value: stats.total, color: "#6b7280", bg: "rgba(148,163,184,0.1)" },
+            { icon: Clock, label: "Pendientes", value: stats.pendientes, color: "#ea580c", bg: "rgba(249,115,22,0.1)" },
+            { icon: Loader, label: "En Proceso", value: stats.enProceso, color: "#2563eb", bg: "rgba(59,130,246,0.1)" },
+            { icon: CheckCircle2, label: "Completados", value: stats.completados, color: "#16a34a", bg: "rgba(0,0,0,0.06)" },
           ].map(({ icon: Icon, label, value, color, bg }) => (
             <div
               key={label}
               className="rounded-xl p-4 flex items-center gap-4"
-              style={{ backgroundColor: "#1e293b", border: "1px solid rgba(255,255,255,0.06)" }}
+              style={{ backgroundColor: "#ffffff", border: "1px solid #e5e7eb" }}
             >
               <div
                 className="flex items-center justify-center w-10 h-10 rounded-lg flex-shrink-0"
@@ -406,8 +471,8 @@ export default function MantenimientosScreen({ onNavigate }: MantenimientosScree
                 <Icon className="w-5 h-5" style={{ color }} />
               </div>
               <div>
-                <span className="text-2xl font-bold text-white">{value}</span>
-                <p className="text-xs" style={{ color: "#64748b" }}>
+                <span className="text-2xl font-bold text-gray-900">{value}</span>
+                <p className="text-xs" style={{ color: "#9ca3af" }}>
                   {label}
                 </p>
               </div>
@@ -418,20 +483,20 @@ export default function MantenimientosScreen({ onNavigate }: MantenimientosScree
         {/* Table */}
         <div
           className="rounded-xl overflow-hidden"
-          style={{ backgroundColor: "#1e293b", border: "1px solid rgba(255,255,255,0.06)" }}
+          style={{ backgroundColor: "#ffffff", border: "1px solid #e5e7eb" }}
         >
-          <div className="px-5 py-4 border-b" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
-            <h2 className="text-sm font-semibold text-white">Registro de Mantenimientos</h2>
+          <div className="px-5 py-4 border-b" style={{ borderColor: "#e5e7eb" }}>
+            <h2 className="text-sm font-semibold text-gray-900">Registro de Mantenimientos</h2>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr style={{ backgroundColor: "rgba(15,31,61,0.5)" }}>
+                <tr style={{ backgroundColor: "#f9fafb" }}>
                   {["ID", "Tipo de Servicio", "Fecha", "Vehículo", "Costo", "Estado", "Acciones"].map((h) => (
                     <th
                       key={h}
                       className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider"
-                      style={{ color: "#475569" }}
+                      style={{ color: "#9ca3af" }}
                     >
                       {h}
                     </th>
@@ -439,38 +504,38 @@ export default function MantenimientosScreen({ onNavigate }: MantenimientosScree
                 </tr>
               </thead>
               <tbody>
-                {mantenimientos.map((m, i) => {
+                {mantenimientosFiltrados.map((m, i) => {
                   const badge = estadoBadgeStyle(m.estado)
                   return (
                     <tr
                       key={m.id}
                       className="transition-colors"
                       style={{
-                        borderTop: i > 0 ? "1px solid rgba(255,255,255,0.04)" : undefined,
+                        borderTop: i > 0 ? "1px solid #f3f4f6" : undefined,
                       }}
-                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.03)")}
+                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f9fafb")}
                       onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
                     >
                       <td className="px-5 py-3.5">
-                        <span className="text-sm font-mono font-semibold" style={{ color: "#38bdf8" }}>
+                        <span className="text-sm font-mono font-semibold" style={{ color: "#111827" }}>
                           {m.id}
                         </span>
                       </td>
                       <td className="px-5 py-3.5">
-                        <span className="text-sm text-white">{m.tipoServicio}</span>
+                        <span className="text-sm text-gray-900">{m.tipoServicio}</span>
                       </td>
                       <td className="px-5 py-3.5">
-                        <span className="text-sm" style={{ color: "#94a3b8" }}>
+                        <span className="text-sm" style={{ color: "#6b7280" }}>
                           {formatFecha(m.fecha)}
                         </span>
                       </td>
                       <td className="px-5 py-3.5">
-                        <span className="text-sm font-mono" style={{ color: "#cbd5e1" }}>
+                        <span className="text-sm font-mono" style={{ color: "#374151" }}>
                           {m.vehiculo}
                         </span>
                       </td>
                       <td className="px-5 py-3.5">
-                        <span className="text-sm font-medium text-white">{formatCosto(m.costo)}</span>
+                        <span className="text-sm font-medium text-gray-900">{formatCosto(m.costo)}</span>
                       </td>
                       <td className="px-5 py-3.5">
                         <span
@@ -490,7 +555,7 @@ export default function MantenimientosScreen({ onNavigate }: MantenimientosScree
                             className="flex flex-col sm:flex-row sm:items-center gap-2 p-3 rounded-lg"
                             style={{ backgroundColor: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)" }}
                           >
-                            <span className="text-xs font-medium" style={{ color: "#fca5a5" }}>
+                            <span className="text-xs font-medium" style={{ color: "#dc2626" }}>
                               ¿Eliminar este mantenimiento?
                             </span>
                             <div className="flex items-center gap-2">
@@ -499,9 +564,9 @@ export default function MantenimientosScreen({ onNavigate }: MantenimientosScree
                                 onClick={() => setDeletingId(null)}
                                 className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all hover:opacity-80"
                                 style={{
-                                  backgroundColor: "rgba(255,255,255,0.06)",
-                                  color: "#94a3b8",
-                                  border: "1px solid rgba(255,255,255,0.08)",
+                                  backgroundColor: "#f3f4f6",
+                                  color: "#6b7280",
+                                  border: "1px solid #e5e7eb",
                                 }}
                               >
                                 Cancelar
@@ -510,7 +575,7 @@ export default function MantenimientosScreen({ onNavigate }: MantenimientosScree
                                 type="button"
                                 onClick={() => handleDelete(m.id)}
                                 className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:opacity-90"
-                                style={{ backgroundColor: "#ef4444", color: "white" }}
+                                style={{ backgroundColor: "#dc2626", color: "white" }}
                               >
                                 Eliminar
                               </button>
@@ -524,7 +589,7 @@ export default function MantenimientosScreen({ onNavigate }: MantenimientosScree
                               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all hover:opacity-80"
                               style={{
                                 backgroundColor: "rgba(234,179,8,0.12)",
-                                color: "#eab308",
+                                color: "#ca8a04",
                                 border: "1px solid rgba(234,179,8,0.2)",
                               }}
                             >
@@ -537,7 +602,7 @@ export default function MantenimientosScreen({ onNavigate }: MantenimientosScree
                               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all hover:opacity-80"
                               style={{
                                 backgroundColor: "rgba(239,68,68,0.1)",
-                                color: "#f87171",
+                                color: "#dc2626",
                                 border: "1px solid rgba(239,68,68,0.2)",
                               }}
                             >

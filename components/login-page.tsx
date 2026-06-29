@@ -36,123 +36,78 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden" style={{ backgroundColor: "#0a1628" }}>
-      {/* Grid pattern background */}
+    <div className="min-h-screen flex items-center justify-center bg-[#f9fafb] p-4">
       <div
-        className="absolute inset-0 opacity-[0.07]"
-        style={{
-          backgroundImage: `
-            linear-gradient(rgba(34,197,94,0.8) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(34,197,94,0.8) 1px, transparent 1px)
-          `,
-          backgroundSize: "40px 40px",
-        }}
-      />
-
-      {/* Subtle radial glow */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background: "radial-gradient(ellipse 70% 60% at 50% 50%, rgba(34,197,94,0.04) 0%, transparent 70%)",
-        }}
-      />
-
-      {/* Card */}
-      <div
-        className="relative w-full max-w-md mx-4 rounded-2xl border p-8 shadow-2xl"
-        style={{
-          backgroundColor: "#0f1f3d",
-          borderColor: "rgba(255,255,255,0.08)",
-          boxShadow: "0 25px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(34,197,94,0.08)",
-        }}
+        className="w-full max-w-md rounded-2xl border border-[#e5e7eb] bg-white p-8 shadow-sm"
       >
-        {/* Logo */}
         <div className="flex flex-col items-center mb-8">
-          <div
-            className="flex items-center justify-center w-16 h-16 rounded-2xl mb-4"
-            style={{ backgroundColor: "rgba(34,197,94,0.12)", border: "1px solid rgba(34,197,94,0.25)" }}
-          >
-            <Truck className="w-8 h-8" style={{ color: "#22c55e" }} />
+          <div className="flex items-center justify-center w-16 h-16 rounded-2xl mb-4 bg-black">
+            <Truck className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-3xl font-bold tracking-tight text-white">TMS</h1>
-          <p className="text-sm mt-1 font-medium" style={{ color: "#94a3b8" }}>
+          <h1 className="text-3xl font-bold tracking-tight text-[#111827]">TMS</h1>
+          <p className="text-sm mt-1 font-medium text-[#6b7280]">
             Sistema de Tracking Terrestre
           </p>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          {/* Email */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-medium" style={{ color: "#94a3b8" }}>
+            <label className="text-xs font-medium text-[#6b7280]">
               Correo electrónico
             </label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: "#475569" }} />
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9ca3af]" />
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="usuario@biogps.cl"
                 required
-                className="w-full pl-10 pr-4 py-2.5 rounded-lg text-sm text-white placeholder:text-slate-500 outline-none transition-all"
-                style={{
-                  backgroundColor: "#0a1628",
-                  border: "1px solid rgba(255,255,255,0.1)",
-                }}
-                onFocus={(e) => (e.target.style.borderColor = "rgba(34,197,94,0.5)")}
-                onBlur={(e) => (e.target.style.borderColor = "rgba(255,255,255,0.1)")}
+                className="w-full pl-10 pr-4 py-2.5 rounded-lg text-sm text-[#111827] placeholder:text-gray-400 outline-none transition-all bg-[#f9fafb] border border-[#e5e7eb]"
+                onFocus={(e) => (e.target.style.borderColor = "#000000")}
+                onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
               />
             </div>
           </div>
 
-          {/* Password */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-medium" style={{ color: "#94a3b8" }}>
+            <label className="text-xs font-medium text-[#6b7280]">
               Contraseña
             </label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: "#475569" }} />
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9ca3af]" />
               <input
                 type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 required
-                className="w-full pl-10 pr-10 py-2.5 rounded-lg text-sm text-white placeholder:text-slate-500 outline-none transition-all"
-                style={{
-                  backgroundColor: "#0a1628",
-                  border: "1px solid rgba(255,255,255,0.1)",
-                }}
-                onFocus={(e) => (e.target.style.borderColor = "rgba(34,197,94,0.5)")}
-                onBlur={(e) => (e.target.style.borderColor = "rgba(255,255,255,0.1)")}
+                className="w-full pl-10 pr-10 py-2.5 rounded-lg text-sm text-[#111827] placeholder:text-gray-400 outline-none transition-all bg-[#f9fafb] border border-[#e5e7eb]"
+                onFocus={(e) => (e.target.style.borderColor = "#000000")}
+                onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2"
-                style={{ color: "#475569" }}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9ca3af]"
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
           </div>
 
-          {/* Error */}
           {error && (
-            <p className="text-xs px-3 py-2 rounded-lg" style={{ backgroundColor: "rgba(239,68,68,0.1)", color: "#f87171", border: "1px solid rgba(239,68,68,0.2)" }}>
+            <p className="text-xs px-3 py-2 rounded-lg bg-red-50 text-[#dc2626] border border-red-200">
               {error}
             </p>
           )}
 
-          {/* Submit */}
           <button
             type="submit"
             disabled={loading}
             className="w-full py-3 rounded-lg text-sm font-semibold text-white transition-all mt-1"
             style={{
-              backgroundColor: loading ? "#15803d" : "#22c55e",
-              color: "#0a1628",
+              backgroundColor: loading ? "#374151" : "#000000",
               opacity: loading ? 0.8 : 1,
               cursor: loading ? "not-allowed" : "pointer",
             }}
@@ -161,37 +116,31 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
           </button>
         </form>
 
-        {/* Demo credentials */}
         <div
-          className="mt-6 rounded-xl p-4 cursor-pointer transition-all hover:border-green-500/40"
-          style={{
-            backgroundColor: "rgba(34,197,94,0.05)",
-            border: "1px solid rgba(34,197,94,0.15)",
-          }}
+          className="mt-6 rounded-xl p-4 cursor-pointer transition-all border border-[#e5e7eb] bg-[#f9fafb] hover:border-gray-300"
           onClick={fillDemo}
           title="Clic para autocompletar"
         >
           <div className="flex items-center gap-2 mb-2">
-            <Key className="w-3.5 h-3.5" style={{ color: "#22c55e" }} />
-            <span className="text-xs font-semibold" style={{ color: "#22c55e" }}>
+            <Key className="w-3.5 h-3.5 text-[#111827]" />
+            <span className="text-xs font-semibold text-[#111827]">
               Credenciales de Demo
             </span>
-            <span className="ml-auto text-xs" style={{ color: "#475569" }}>clic para usar</span>
+            <span className="ml-auto text-xs text-[#9ca3af]">clic para usar</span>
           </div>
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-2">
-              <span className="text-xs" style={{ color: "#64748b" }}>Usuario:</span>
-              <span className="text-xs font-mono" style={{ color: "#cbd5e1" }}>admin@tms.cl</span>
+              <span className="text-xs text-[#9ca3af]">Usuario:</span>
+              <span className="text-xs font-mono text-[#374151]">admin@tms.cl</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-xs" style={{ color: "#64748b" }}>Contraseña:</span>
-              <span className="text-xs font-mono" style={{ color: "#cbd5e1" }}>demo2026</span>
+              <span className="text-xs text-[#9ca3af]">Contraseña:</span>
+              <span className="text-xs font-mono text-[#374151]">demo2026</span>
             </div>
           </div>
         </div>
 
-        {/* Footer */}
-        <p className="text-center text-xs mt-6" style={{ color: "#334155" }}>
+        <p className="text-center text-xs mt-6 text-[#9ca3af]">
           TMS v2.0 © 2026
         </p>
       </div>

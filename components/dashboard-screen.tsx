@@ -2,72 +2,21 @@
 
 import { useState } from "react"
 import { Activity, Mail, Truck, AlertTriangle, Eye, RefreshCw, CheckCircle } from "lucide-react"
+import type { Operation } from "@/lib/mock-data"
 
 interface DashboardScreenProps {
   onNavigate: (screen: string, opId?: string) => void
+  operations: Operation[]
 }
-
-const operations = [
-  {
-    id: "EXM4632-25",
-    shipper: "IBERCONSA",
-    placa: "AA-BB-11",
-    status: "RUMBO A PLANTA POR CUTRAL CO",
-    statusColor: "#eab308",
-    statusDot: "yellow",
-    lastEmail: "Hoy 09:00",
-    hasConfirm: false,
-  },
-  {
-    id: "EXM4633-25",
-    shipper: "FRUTAS DEL SUR",
-    placa: "CC-DD-22",
-    status: "FULL EN PLANTA",
-    statusColor: "#22c55e",
-    statusDot: "green",
-    lastEmail: "Hoy 09:00",
-    hasConfirm: false,
-  },
-  {
-    id: "EXM4634-25",
-    shipper: "EXPORTADORA XYZ",
-    placa: "EE-FF-33",
-    status: "Sin señal GPS +2h",
-    statusColor: "#ef4444",
-    statusDot: "red",
-    lastEmail: "Pendiente",
-    hasConfirm: false,
-  },
-  {
-    id: "EXM4635-25",
-    shipper: "AGRO PATAGONIA",
-    placa: "GG-HH-44",
-    status: "LLEGANDO A ZONA FINAL",
-    statusColor: "#f97316",
-    statusDot: "orange",
-    lastEmail: "Hace 30 min",
-    hasConfirm: true,
-  },
-  {
-    id: "EXM4636-25",
-    shipper: "CITRUS EXPORT",
-    placa: "II-JJ-55",
-    status: "FULL RUMBO A FRONTERA POR LONQUIMAY",
-    statusColor: "#eab308",
-    statusDot: "yellow",
-    lastEmail: "Hoy 09:00",
-    hasConfirm: false,
-  },
-]
 
 const dotColors: Record<string, string> = {
-  yellow: "#eab308",
-  green: "#22c55e",
-  red: "#ef4444",
-  orange: "#f97316",
+  yellow: "#ca8a04",
+  green: "#16a34a",
+  red: "#dc2626",
+  orange: "#ea580c",
 }
 
-export default function DashboardScreen({ onNavigate }: DashboardScreenProps) {
+export default function DashboardScreen({ onNavigate, operations }: DashboardScreenProps) {
   const [resendingId, setResendingId] = useState<string | null>(null)
 
   const handleResend = (opId: string) => {
@@ -75,82 +24,86 @@ export default function DashboardScreen({ onNavigate }: DashboardScreenProps) {
     setTimeout(() => setResendingId(null), 1500)
   }
 
+  const alertOp = operations.find((op) => op.hasConfirm)
+  const enRuta = operations.filter((op) => op.estado === "En Ruta").length
+  const alertasPendientes = operations.filter((op) => op.hasConfirm).length
+
   return (
     <div className="flex flex-col gap-6 p-6">
-      {/* Header */}
       <div>
-        <h1 className="text-xl font-bold text-white">TMS — Panel de Operaciones</h1>
-        <p className="text-sm mt-0.5" style={{ color: "#64748b" }}>Resumen en tiempo real del sistema de tracking terrestre</p>
+        <h1 className="text-xl font-bold text-gray-900">TMS — Panel de Operaciones</h1>
+        <p className="text-sm mt-0.5" style={{ color: "#9ca3af" }}>Resumen en tiempo real del sistema de tracking terrestre</p>
       </div>
 
-      {/* Stats row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { icon: Activity, label: "Operaciones Activas", value: "12", color: "#22c55e", bg: "rgba(34,197,94,0.1)" },
-          { icon: Mail, label: "Emails Enviados Hoy", value: "8", color: "#3b82f6", bg: "rgba(59,130,246,0.1)" },
-          { icon: Truck, label: "Camiones En Ruta", value: "9", color: "#eab308", bg: "rgba(234,179,8,0.1)" },
-          { icon: AlertTriangle, label: "Alertas Pendientes", value: "2", color: "#ef4444", bg: "rgba(239,68,68,0.1)", badge: true },
+          { icon: Activity, label: "Operaciones Activas", value: String(operations.length), color: "#16a34a", bg: "rgba(0,0,0,0.06)" },
+          { icon: Mail, label: "Emails Enviados Hoy", value: "8", color: "#2563eb", bg: "rgba(59,130,246,0.1)" },
+          { icon: Truck, label: "Camiones En Ruta", value: String(enRuta), color: "#ca8a04", bg: "rgba(234,179,8,0.1)" },
+          { icon: AlertTriangle, label: "Alertas Pendientes", value: String(alertasPendientes), color: "#dc2626", bg: "rgba(239,68,68,0.1)", badge: alertasPendientes > 0 },
         ].map(({ icon: Icon, label, value, color, bg, badge }) => (
           <div
             key={label}
             className="rounded-xl p-4 flex items-center gap-4"
-            style={{ backgroundColor: "#1e293b", border: "1px solid rgba(255,255,255,0.06)" }}
+            style={{ backgroundColor: "#ffffff", border: "1px solid #e5e7eb" }}
           >
             <div className="flex items-center justify-center w-10 h-10 rounded-lg flex-shrink-0" style={{ backgroundColor: bg }}>
               <Icon className="w-5 h-5" style={{ color }} />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-2xl font-bold text-white">{value}</span>
+                <span className="text-2xl font-bold text-gray-900">{value}</span>
                 {badge && (
-                  <span className="text-xs font-bold px-1.5 py-0.5 rounded-full" style={{ backgroundColor: "#ef4444", color: "white" }}>
+                  <span className="text-xs font-bold px-1.5 py-0.5 rounded-full" style={{ backgroundColor: "#dc2626", color: "white" }}>
                     !
                   </span>
                 )}
               </div>
-              <p className="text-xs" style={{ color: "#64748b" }}>{label}</p>
+              <p className="text-xs" style={{ color: "#9ca3af" }}>{label}</p>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Alert banner */}
-      <div
-        className="rounded-xl p-4 flex items-center justify-between gap-4"
-        style={{ backgroundColor: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.3)" }}
-      >
-        <div className="flex items-center gap-3">
-          <span className="text-xl">🚨</span>
-          <div>
-            <span className="font-semibold text-sm" style={{ color: "#fb923c" }}>
-              EXM4635-25 — Camión GG-HH-44 llegando a Puerto Coronel
-            </span>
-            <p className="text-xs mt-0.5" style={{ color: "#94a3b8" }}>Detectado hace 8 minutos · Puerto Coronel</p>
-          </div>
-        </div>
-        <button
-          onClick={() => onNavigate("alerta")}
-          className="flex-shrink-0 px-4 py-2 rounded-lg text-xs font-semibold transition-all hover:opacity-90"
-          style={{ backgroundColor: "#f97316", color: "white" }}
+      {alertOp && (
+        <div
+          className="rounded-xl p-4 flex items-center justify-between gap-4"
+          style={{ backgroundColor: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.3)" }}
         >
-          Ver Alerta
-        </button>
-      </div>
+          <div className="flex items-center gap-3">
+            <span className="text-xl">🚨</span>
+            <div>
+              <span className="font-semibold text-sm" style={{ color: "#ea580c" }}>
+                {alertOp.id} — Camión {alertOp.placa} llegando a La Serena
+              </span>
+              <p className="text-xs mt-0.5" style={{ color: "#6b7280" }}>
+                {alertOp.ruta} · Detectado hace 8 minutos
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => onNavigate("alerta")}
+            className="flex-shrink-0 px-4 py-2 rounded-lg text-xs font-semibold transition-all hover:opacity-90"
+            style={{ backgroundColor: "#ea580c", color: "white" }}
+          >
+            Ver Alerta
+          </button>
+        </div>
+      )}
 
-      {/* Operations table */}
       <div
         className="rounded-xl overflow-hidden"
-        style={{ backgroundColor: "#1e293b", border: "1px solid rgba(255,255,255,0.06)" }}
+        style={{ backgroundColor: "#ffffff", border: "1px solid #e5e7eb" }}
       >
-        <div className="px-5 py-4 border-b" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
-          <h2 className="text-sm font-semibold text-white">Operaciones Activas</h2>
+        <div className="px-5 py-4 border-b" style={{ borderColor: "#e5e7eb" }}>
+          <h2 className="text-sm font-semibold text-gray-900">Operaciones Activas</h2>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr style={{ backgroundColor: "rgba(15,31,61,0.5)" }}>
-                {["OP / EXM", "SHIPPER", "PLACA", "STATUS ACTUAL", "ÚLTIMO EMAIL", "ACCIONES"].map((h) => (
-                  <th key={h} className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: "#475569" }}>
+              <tr style={{ backgroundColor: "#f9fafb" }}>
+                {["OP", "CLIENTE", "PLACA", "RUTA", "STATUS", "ÚLTIMO EMAIL", "ACCIONES"].map((h) => (
+                  <th key={h} className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: "#9ca3af" }}>
                     {h}
                   </th>
                 ))}
@@ -162,28 +115,31 @@ export default function DashboardScreen({ onNavigate }: DashboardScreenProps) {
                   key={op.id}
                   className="transition-colors cursor-pointer"
                   style={{
-                    borderTop: i > 0 ? "1px solid rgba(255,255,255,0.04)" : undefined,
+                    borderTop: i > 0 ? "1px solid #f3f4f6" : undefined,
                     backgroundColor: "transparent",
                   }}
-                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.03)")}
+                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f9fafb")}
                   onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
                 >
                   <td className="px-5 py-3.5">
-                    <span className="text-sm font-mono font-semibold" style={{ color: "#38bdf8" }}>
+                    <span className="text-sm font-mono font-semibold" style={{ color: "#111827" }}>
                       {op.id}
                     </span>
                   </td>
                   <td className="px-5 py-3.5">
-                    <span className="text-sm text-white">{op.shipper}</span>
+                    <span className="text-sm text-gray-900">{op.shipper}</span>
                   </td>
                   <td className="px-5 py-3.5">
-                    <span className="text-sm font-mono" style={{ color: "#94a3b8" }}>{op.placa}</span>
+                    <span className="text-sm font-mono" style={{ color: "#6b7280" }}>{op.placa}</span>
+                  </td>
+                  <td className="px-5 py-3.5">
+                    <span className="text-xs" style={{ color: "#6b7280" }}>{op.ruta}</span>
                   </td>
                   <td className="px-5 py-3.5">
                     <div className="flex items-center gap-2">
                       <div
                         className="w-2 h-2 rounded-full flex-shrink-0"
-                        style={{ backgroundColor: dotColors[op.statusDot], boxShadow: `0 0 6px ${dotColors[op.statusDot]}80` }}
+                        style={{ backgroundColor: dotColors[op.statusDot] }}
                       />
                       <span className="text-xs font-medium" style={{ color: op.statusColor }}>
                         {op.status}
@@ -191,7 +147,7 @@ export default function DashboardScreen({ onNavigate }: DashboardScreenProps) {
                     </div>
                   </td>
                   <td className="px-5 py-3.5">
-                    <span className="text-xs" style={{ color: "#64748b" }}>{op.lastEmail}</span>
+                    <span className="text-xs" style={{ color: "#9ca3af" }}>{op.lastEmail}</span>
                   </td>
                   <td className="px-5 py-3.5">
                     <div className="flex items-center gap-2">
@@ -202,8 +158,8 @@ export default function DashboardScreen({ onNavigate }: DashboardScreenProps) {
                             e.stopPropagation()
                             onNavigate("alerta")
                           }}
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:opacity-90"
-                          style={{ backgroundColor: "#22c55e", color: "#0a1628" }}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:opacity-90 text-white"
+                          style={{ backgroundColor: "#000000", color: "#ffffff" }}
                         >
                           <CheckCircle className="w-3 h-3" />
                           Confirmar Entrega
@@ -217,7 +173,7 @@ export default function DashboardScreen({ onNavigate }: DashboardScreenProps) {
                           }}
                           disabled={resendingId === op.id}
                           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all hover:opacity-80 disabled:opacity-60"
-                          style={{ backgroundColor: "rgba(59,130,246,0.15)", color: "#60a5fa", border: "1px solid rgba(59,130,246,0.2)" }}
+                          style={{ backgroundColor: "#eff6ff", color: "#2563eb", border: "1px solid #bfdbfe" }}
                         >
                           <RefreshCw className={`w-3 h-3 ${resendingId === op.id ? "animate-spin" : ""}`} />
                           Reenviar
@@ -230,7 +186,7 @@ export default function DashboardScreen({ onNavigate }: DashboardScreenProps) {
                           onNavigate("detalle", op.id)
                         }}
                         className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all hover:opacity-80"
-                        style={{ backgroundColor: "rgba(255,255,255,0.06)", color: "#94a3b8", border: "1px solid rgba(255,255,255,0.08)" }}
+                        style={{ backgroundColor: "#f3f4f6", color: "#6b7280", border: "1px solid #e5e7eb" }}
                       >
                         <Eye className="w-3 h-3" />
                         Ver

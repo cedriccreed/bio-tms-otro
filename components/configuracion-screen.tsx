@@ -4,23 +4,23 @@ import { useState } from "react"
 import { Plus, Pencil, Trash2, Clock } from "lucide-react"
 
 const geocercas = [
-  { name: "PLANTA_POMONA", status: "UNIDAD RUMBO A PLANTA POR POMONA", platform: "BioGPS" },
-  { name: "PLANTA_CUTRALCO", status: "UNIDAD RUMBO A PLANTA POR CUTRAL CO", platform: "BioGPS" },
-  { name: "FRONTERA_LONQUIMAY", status: "FULL RUMBO A FRONTERA POR LONQUIMAY", platform: "CUSat" },
-  { name: "FRONTERA_VILLAREGINA", status: "FULL RUMBO A FRONTERA POR VILLA REGINA", platform: "BioGPS" },
-  { name: "PUERTO_CORONEL", status: "UNIDAD ENTREGADA A LA TERMINAL", platform: "BioGPS" },
-  { name: "PUERTO_SANANTONIO", status: "UNIDAD ENTREGADA A LA TERMINAL", platform: "BioGPS" },
+  { name: "ZONA_SAN_ANTONIO", status: "UNIDAD SALIÓ DE SAN ANTONIO", platform: "BioGPS" },
+  { name: "RUTA5_CURANILAHUE", status: "UNIDAD EN RUTA 5 SUR — ZONA CURANILAHUE", platform: "BioGPS" },
+  { name: "RUTA5_CHILLAN", status: "UNIDAD EN RUTA 5 SUR — ZONA CHILLÁN", platform: "BioGPS" },
+  { name: "ZONA_LINARES", status: "UNIDAD LLEGANDO A LINARES", platform: "BioGPS" },
+  { name: "ZONA_LA_SERENA", status: "UNIDAD EN ZONA DE ENTREGA LA SERENA", platform: "BioGPS" },
+  { name: "ZONA_SANTIAGO", status: "UNIDAD EN ZONA DE DESCARGA SANTIAGO", platform: "BioGPS" },
 ]
 
 const destinatarios = [
-  { client: "IBERCONSA", emails: "jessica@tms.cl, ale@starb.cl (+2)", updated: "01 jun 2026" },
-  { client: "FRUTAS DEL SUR", emails: "ops@frutasdelsur.com (+1)", updated: "15 may 2026" },
-  { client: "AGRO PATAGONIA", emails: "contacto@agropatagonia.com (+3)", updated: "20 may 2026" },
+  { client: "Distribuidora Maule Sur", emails: "contacto@maulesur.cl, operaciones@maulesur.cl (+1)", updated: "01 jun 2026" },
+  { client: "Agroexport Valparaíso", emails: "ops@agroexportvp.cl (+1)", updated: "15 may 2026" },
+  { client: "Minera Atacama Logistics", emails: "despacho@mineraatacama.cl (+3)", updated: "20 may 2026" },
 ]
 
 const platformColors: Record<string, { bg: string; color: string; border: string }> = {
-  BioGPS: { bg: "rgba(34,197,94,0.1)", color: "#22c55e", border: "rgba(34,197,94,0.2)" },
-  CUSat: { bg: "rgba(59,130,246,0.1)", color: "#60a5fa", border: "rgba(59,130,246,0.2)" },
+  BioGPS: { bg: "rgba(0,0,0,0.06)", color: "#16a34a", border: "rgba(0,0,0,0.15)" },
+  CUSat: { bg: "rgba(59,130,246,0.1)", color: "#2563eb", border: "rgba(59,130,246,0.2)" },
 }
 
 type Tab = "geocercas" | "destinatarios" | "horarios"
@@ -38,14 +38,14 @@ export default function ConfiguracionScreen() {
     <div className="flex flex-col gap-6 p-6">
       {/* Header */}
       <div>
-        <h1 className="text-xl font-bold text-white">Configuración del Sistema</h1>
-        <p className="text-sm mt-0.5" style={{ color: "#64748b" }}>Gestión de geocercas, destinatarios y horarios de notificaciones</p>
+        <h1 className="text-xl font-bold text-gray-900">Configuración del Sistema</h1>
+        <p className="text-sm mt-0.5" style={{ color: "#9ca3af" }}>Gestión de geocercas, destinatarios y horarios de notificaciones</p>
       </div>
 
       {/* Tab bar */}
       <div
         className="flex gap-1 p-1 rounded-xl w-fit"
-        style={{ backgroundColor: "#0f1f3d", border: "1px solid rgba(255,255,255,0.06)" }}
+        style={{ backgroundColor: "#f9fafb", border: "1px solid #e5e7eb" }}
       >
         {tabs.map((tab) => (
           <button
@@ -53,8 +53,8 @@ export default function ConfiguracionScreen() {
             onClick={() => setActiveTab(tab.id)}
             className="px-5 py-2 rounded-lg text-sm font-medium transition-all"
             style={{
-              backgroundColor: activeTab === tab.id ? "#22c55e" : "transparent",
-              color: activeTab === tab.id ? "#0a1628" : "#64748b",
+              backgroundColor: activeTab === tab.id ? "#000000" : "transparent",
+              color: activeTab === tab.id ? "#ffffff" : "#6b7280",
             }}
           >
             {tab.label}
@@ -66,13 +66,13 @@ export default function ConfiguracionScreen() {
       {activeTab === "geocercas" && (
         <div
           className="rounded-xl overflow-hidden"
-          style={{ backgroundColor: "#1e293b", border: "1px solid rgba(255,255,255,0.06)" }}
+          style={{ backgroundColor: "#ffffff", border: "1px solid #e5e7eb" }}
         >
-          <div className="px-5 py-4 flex items-center justify-between border-b" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
-            <h2 className="text-sm font-semibold text-white">Geocercas configuradas</h2>
+          <div className="px-5 py-4 flex items-center justify-between border-b" style={{ borderColor: "#e5e7eb" }}>
+            <h2 className="text-sm font-semibold text-gray-900">Geocercas configuradas</h2>
             <button
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:opacity-90"
-              style={{ backgroundColor: "#22c55e", color: "#0a1628" }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:opacity-90 text-white"
+              style={{ backgroundColor: "#000000", color: "#ffffff" }}
             >
               <Plus className="w-3.5 h-3.5" />
               Agregar Geocerca
@@ -81,9 +81,9 @@ export default function ConfiguracionScreen() {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr style={{ backgroundColor: "rgba(15,31,61,0.5)" }}>
+                <tr style={{ backgroundColor: "#f9fafb" }}>
                   {["GEOCERCA", "STATUS QUE GENERA", "PLATAFORMA", "ACCIONES"].map((h) => (
-                    <th key={h} className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: "#475569" }}>
+                    <th key={h} className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: "#9ca3af" }}>
                       {h}
                     </th>
                   ))}
@@ -93,16 +93,16 @@ export default function ConfiguracionScreen() {
                 {geocercas.map((g, i) => (
                   <tr
                     key={g.name}
-                    style={{ borderTop: i > 0 ? "1px solid rgba(255,255,255,0.04)" : undefined }}
-                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.02)")}
+                    style={{ borderTop: i > 0 ? "1px solid #f3f4f6" : undefined }}
+                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f9fafb")}
                     onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
                     className="transition-colors"
                   >
                     <td className="px-5 py-3.5">
-                      <span className="text-sm font-mono font-semibold" style={{ color: "#38bdf8" }}>{g.name}</span>
+                      <span className="text-sm font-mono font-semibold" style={{ color: "#111827" }}>{g.name}</span>
                     </td>
                     <td className="px-5 py-3.5">
-                      <span className="text-sm" style={{ color: "#94a3b8" }}>{g.status}</span>
+                      <span className="text-sm" style={{ color: "#6b7280" }}>{g.status}</span>
                     </td>
                     <td className="px-5 py-3.5">
                       <span
@@ -120,13 +120,13 @@ export default function ConfiguracionScreen() {
                       <div className="flex items-center gap-2">
                         <button
                           className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all hover:opacity-80"
-                          style={{ backgroundColor: "rgba(59,130,246,0.12)", color: "#60a5fa", border: "1px solid rgba(59,130,246,0.2)" }}
+                          style={{ backgroundColor: "#eff6ff", color: "#2563eb", border: "1px solid #bfdbfe" }}
                         >
                           <Pencil className="w-3 h-3" /> Editar
                         </button>
                         <button
                           className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all hover:opacity-80"
-                          style={{ backgroundColor: "rgba(239,68,68,0.1)", color: "#f87171", border: "1px solid rgba(239,68,68,0.2)" }}
+                          style={{ backgroundColor: "rgba(239,68,68,0.1)", color: "#dc2626", border: "1px solid rgba(239,68,68,0.2)" }}
                         >
                           <Trash2 className="w-3 h-3" /> Eliminar
                         </button>
@@ -143,13 +143,13 @@ export default function ConfiguracionScreen() {
       {activeTab === "destinatarios" && (
         <div
           className="rounded-xl overflow-hidden"
-          style={{ backgroundColor: "#1e293b", border: "1px solid rgba(255,255,255,0.06)" }}
+          style={{ backgroundColor: "#ffffff", border: "1px solid #e5e7eb" }}
         >
-          <div className="px-5 py-4 flex items-center justify-between border-b" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
-            <h2 className="text-sm font-semibold text-white">Destinatarios por cliente</h2>
+          <div className="px-5 py-4 flex items-center justify-between border-b" style={{ borderColor: "#e5e7eb" }}>
+            <h2 className="text-sm font-semibold text-gray-900">Destinatarios por cliente</h2>
             <button
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:opacity-90"
-              style={{ backgroundColor: "#22c55e", color: "#0a1628" }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:opacity-90 text-white"
+              style={{ backgroundColor: "#000000", color: "#ffffff" }}
             >
               <Plus className="w-3.5 h-3.5" />
               Agregar Cliente
@@ -158,9 +158,9 @@ export default function ConfiguracionScreen() {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr style={{ backgroundColor: "rgba(15,31,61,0.5)" }}>
+                <tr style={{ backgroundColor: "#f9fafb" }}>
                   {["CLIENTE", "EMAILS", "ÚLTIMA ACTUALIZACIÓN", "ACCIONES"].map((h) => (
-                    <th key={h} className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: "#475569" }}>
+                    <th key={h} className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: "#9ca3af" }}>
                       {h}
                     </th>
                   ))}
@@ -170,24 +170,24 @@ export default function ConfiguracionScreen() {
                 {destinatarios.map((d, i) => (
                   <tr
                     key={d.client}
-                    style={{ borderTop: i > 0 ? "1px solid rgba(255,255,255,0.04)" : undefined }}
-                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.02)")}
+                    style={{ borderTop: i > 0 ? "1px solid #f3f4f6" : undefined }}
+                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f9fafb")}
                     onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
                     className="transition-colors"
                   >
                     <td className="px-5 py-3.5">
-                      <span className="text-sm font-semibold text-white">{d.client}</span>
+                      <span className="text-sm font-semibold text-gray-900">{d.client}</span>
                     </td>
                     <td className="px-5 py-3.5">
-                      <span className="text-sm" style={{ color: "#94a3b8" }}>{d.emails}</span>
+                      <span className="text-sm" style={{ color: "#6b7280" }}>{d.emails}</span>
                     </td>
                     <td className="px-5 py-3.5">
-                      <span className="text-sm" style={{ color: "#64748b" }}>{d.updated}</span>
+                      <span className="text-sm" style={{ color: "#9ca3af" }}>{d.updated}</span>
                     </td>
                     <td className="px-5 py-3.5">
                       <button
                         className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all hover:opacity-80"
-                        style={{ backgroundColor: "rgba(59,130,246,0.12)", color: "#60a5fa", border: "1px solid rgba(59,130,246,0.2)" }}
+                        style={{ backgroundColor: "#eff6ff", color: "#2563eb", border: "1px solid #bfdbfe" }}
                       >
                         <Pencil className="w-3 h-3" /> Editar
                       </button>
@@ -204,39 +204,39 @@ export default function ConfiguracionScreen() {
         <div className="flex flex-col gap-4 max-w-md">
           <div
             className="rounded-xl p-6"
-            style={{ backgroundColor: "#1e293b", border: "1px solid rgba(255,255,255,0.06)" }}
+            style={{ backgroundColor: "#ffffff", border: "1px solid #e5e7eb" }}
           >
             <div className="flex items-center gap-3 mb-5">
               <div
                 className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
-                style={{ backgroundColor: "rgba(34,197,94,0.1)" }}
+                style={{ backgroundColor: "rgba(0,0,0,0.06)" }}
               >
-                <Clock className="w-5 h-5" style={{ color: "#22c55e" }} />
+                <Clock className="w-5 h-5" style={{ color: "#16a34a" }} />
               </div>
               <div>
-                <h2 className="text-sm font-semibold text-white">Horarios por defecto</h2>
-                <p className="text-xs" style={{ color: "#64748b" }}>Se aplica a todas las operaciones sin configuración específica</p>
+                <h2 className="text-sm font-semibold text-gray-900">Horarios por defecto</h2>
+                <p className="text-xs" style={{ color: "#9ca3af" }}>Se aplica a todas las operaciones sin configuración específica</p>
               </div>
             </div>
 
             <div className="flex flex-col gap-4">
-              <div className="flex items-center justify-between p-3 rounded-lg" style={{ backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.05)" }}>
-                <span className="text-sm" style={{ color: "#94a3b8" }}>Frecuencia</span>
-                <span className="text-sm font-semibold text-white">2 veces al día</span>
+              <div className="flex items-center justify-between p-3 rounded-lg" style={{ backgroundColor: "#f9fafb", border: "1px solid #e5e7eb" }}>
+                <span className="text-sm" style={{ color: "#6b7280" }}>Frecuencia</span>
+                <span className="text-sm font-semibold text-gray-900">2 veces al día</span>
               </div>
-              <div className="flex items-center justify-between p-3 rounded-lg" style={{ backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.05)" }}>
-                <span className="text-sm" style={{ color: "#94a3b8" }}>Horario 1</span>
-                <span className="text-sm font-mono font-semibold" style={{ color: "#22c55e" }}>09:00 AM</span>
+              <div className="flex items-center justify-between p-3 rounded-lg" style={{ backgroundColor: "#f9fafb", border: "1px solid #e5e7eb" }}>
+                <span className="text-sm" style={{ color: "#6b7280" }}>Horario 1</span>
+                <span className="text-sm font-mono font-semibold" style={{ color: "#16a34a" }}>09:00 AM</span>
               </div>
-              <div className="flex items-center justify-between p-3 rounded-lg" style={{ backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.05)" }}>
-                <span className="text-sm" style={{ color: "#94a3b8" }}>Horario 2</span>
-                <span className="text-sm font-mono font-semibold" style={{ color: "#22c55e" }}>06:00 PM</span>
+              <div className="flex items-center justify-between p-3 rounded-lg" style={{ backgroundColor: "#f9fafb", border: "1px solid #e5e7eb" }}>
+                <span className="text-sm" style={{ color: "#6b7280" }}>Horario 2</span>
+                <span className="text-sm font-mono font-semibold" style={{ color: "#16a34a" }}>06:00 PM</span>
               </div>
             </div>
 
             <button
               className="mt-5 w-full flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all hover:opacity-80"
-              style={{ backgroundColor: "rgba(34,197,94,0.1)", color: "#22c55e", border: "1px solid rgba(34,197,94,0.2)" }}
+              style={{ backgroundColor: "rgba(0,0,0,0.06)", color: "#16a34a", border: "1px solid rgba(0,0,0,0.15)" }}
             >
               <Pencil className="w-4 h-4" />
               Editar horarios globales
