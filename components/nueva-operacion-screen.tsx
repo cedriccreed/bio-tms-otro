@@ -62,10 +62,10 @@ const destinatariosShipper = [
   "exportaciones@iberconsa.com",
 ]
 
-const destinatariosPadwor = [
-  "jessica@padwor.com",
+const destinatariosInternos = [
+  "jessica@tms.cl",
   "alejandro@starb.cl",
-  "customer@padwor.com",
+  "customer@tms.cl",
 ]
 
 function ContactItem({ email }: { email: string }) {
@@ -158,7 +158,7 @@ export default function NuevaOperacionScreen({ onNavigate }: NuevaOperacionProps
             <Mail className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: "#60a5fa" }} />
             <div>
               <p className="text-sm font-medium" style={{ color: "#93c5fd" }}>
-                Email detected from jessica@padwor.com
+                Email detected from jessica@tms.cl
               </p>
               <p className="text-xs mt-1" style={{ color: "#64748b" }}>
                 Asunto: EXM4636-25/POL:CORONEL/POD:NEW YORK/BUQUE:MSC RAYSHMI/IBERCONSA
@@ -286,8 +286,8 @@ export default function NuevaOperacionScreen({ onNavigate }: NuevaOperacionProps
               contacts={destinatariosShipper}
             />
             <DestinatariosColumn
-              title="Contactos Internos Padwor"
-              contacts={destinatariosPadwor}
+              title="Contactos Internos"
+              contacts={destinatariosInternos}
             />
           </div>
         </div>

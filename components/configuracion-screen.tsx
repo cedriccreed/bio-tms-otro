@@ -13,7 +13,7 @@ const geocercas = [
 ]
 
 const destinatarios = [
-  { client: "IBERCONSA", emails: "jessica@padwor.com, ale@starb.cl (+2)", updated: "01 jun 2026" },
+  { client: "IBERCONSA", emails: "jessica@tms.cl, ale@starb.cl (+2)", updated: "01 jun 2026" },
   { client: "FRUTAS DEL SUR", emails: "ops@frutasdelsur.com (+1)", updated: "15 may 2026" },
   { client: "AGRO PATAGONIA", emails: "contacto@agropatagonia.com (+3)", updated: "20 may 2026" },
 ]

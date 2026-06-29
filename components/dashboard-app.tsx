@@ -4,13 +4,15 @@ import { useState } from "react"
 import { Bell } from "lucide-react"
 import Sidebar from "./sidebar"
 import DashboardScreen from "./dashboard-screen"
+import OperacionesScreen from "./operaciones-screen"
 import NuevaOperacionScreen from "./nueva-operacion-screen"
 import DetalleOperacionScreen from "./detalle-operacion-screen"
 import AlertaScreen from "./alerta-screen"
 import ConfiguracionScreen from "./configuracion-screen"
 import VehiculosScreen from "./vehiculos-screen"
+import MantenimientosScreen from "./mantenimientos-screen"
 
-type Screen = "dashboard" | "operaciones" | "vehiculos" | "nueva" | "configuracion" | "detalle" | "alerta"
+type Screen = "dashboard" | "operaciones" | "vehiculos" | "mantenimientos" | "nueva" | "configuracion" | "detalle" | "alerta"
 
 interface DashboardAppProps {
   onLogout: () => void
@@ -29,6 +31,7 @@ export default function DashboardApp({ onLogout }: DashboardAppProps) {
     dashboard: "Dashboard",
     operaciones: "Operaciones",
     vehiculos: "Vehículos",
+    mantenimientos: "Mantenimientos",
     nueva: "Nueva Operación",
     configuracion: "Configuración",
     detalle: "Detalle Operación",
@@ -38,10 +41,13 @@ export default function DashboardApp({ onLogout }: DashboardAppProps) {
   const renderScreen = () => {
     switch (currentScreen) {
       case "dashboard":
-      case "operaciones":
         return <DashboardScreen onNavigate={handleNavigate} />
+      case "operaciones":
+        return <OperacionesScreen onNavigate={handleNavigate} />
       case "vehiculos":
         return <VehiculosScreen />
+      case "mantenimientos":
+        return <MantenimientosScreen onNavigate={handleNavigate} />
       case "nueva":
         return <NuevaOperacionScreen onNavigate={handleNavigate} />
       case "detalle":

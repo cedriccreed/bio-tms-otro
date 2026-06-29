@@ -53,7 +53,7 @@ export default function AlertaScreen({ onNavigate }: AlertaScreenProps) {
             <h1 className="text-xl font-bold" style={{ color: "#f87171" }}>
               ALERTA — CAMIÓN EN ZONA FINAL
             </h1>
-            <p className="text-xs" style={{ color: "#64748b" }}>Sistema PADWORTMS · Detección automática por geocerca</p>
+            <p className="text-xs" style={{ color: "#64748b" }}>Sistema TMS · Detección automática por geocerca</p>
           </div>
         </div>
       </div>
@@ -150,7 +150,7 @@ export default function AlertaScreen({ onNavigate }: AlertaScreenProps) {
               <Users className="w-3.5 h-3.5" style={{ color: "#60a5fa" }} />
               <span className="text-xs" style={{ color: "#94a3b8" }}>
                 Destinatarios:{" "}
-                <span className="text-white">jessica@padwor.com</span>
+                <span className="text-white">jessica@tms.cl</span>
                 {" "}+3 más
               </span>
             </div>

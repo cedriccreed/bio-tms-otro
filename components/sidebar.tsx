@@ -1,9 +1,9 @@
 "use client"
 
-import { Truck, LayoutDashboard, ClipboardList, Plus, Settings, Circle, Menu, X } from "lucide-react"
+import { Truck, LayoutDashboard, ClipboardList, Plus, Settings, Circle, Menu, X, Wrench } from "lucide-react"
 import { useState } from "react"
 
-type Screen = "dashboard" | "operaciones" | "vehiculos" | "nueva" | "configuracion" | "detalle" | "alerta"
+type Screen = "dashboard" | "operaciones" | "vehiculos" | "mantenimientos" | "nueva" | "configuracion" | "detalle" | "alerta"
 
 interface SidebarProps {
   activeScreen: Screen
@@ -15,6 +15,7 @@ const navItems = [
   { id: "dashboard" as Screen, label: "Dashboard", icon: LayoutDashboard },
   { id: "operaciones" as Screen, label: "Operaciones", icon: ClipboardList },
   { id: "vehiculos" as Screen, label: "Vehículos", icon: Truck },
+  { id: "mantenimientos" as Screen, label: "Mantenimientos", icon: Wrench },
   { id: "nueva" as Screen, label: "Nueva Operación", icon: Plus },
   { id: "configuracion" as Screen, label: "Configuración", icon: Settings },
 ]
@@ -46,8 +47,8 @@ function SidebarContent({ activeNav, onNavigate, onLogout, onNavClick }: Sidebar
           <Truck className="w-5 h-5" style={{ color: "#22c55e" }} />
         </div>
         <div>
-          <p className="text-base font-bold text-white leading-none">PADWORTMS</p>
-          <p className="text-xs mt-0.5" style={{ color: "#475569" }}>Padwor Group × Starb</p>
+          <p className="text-base font-bold text-white leading-none">TMS</p>
+          <p className="text-xs mt-0.5" style={{ color: "#475569" }}>Sistema de Gestión</p>
         </div>
       </div>
 

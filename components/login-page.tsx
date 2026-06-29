@@ -20,7 +20,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
     setLoading(true)
 
     setTimeout(() => {
-      if (email === "admin@padwortms.cl" && password === "demo2026") {
+      if (email === "admin@tms.cl" && password === "demo2026") {
         onLogin()
       } else {
         setError("Credenciales incorrectas. Use las credenciales de demo.")
@@ -30,7 +30,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
   }
 
   const fillDemo = () => {
-    setEmail("admin@padwortms.cl")
+    setEmail("admin@tms.cl")
     setPassword("demo2026")
     setError("")
   }
@@ -74,19 +74,10 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
           >
             <Truck className="w-8 h-8" style={{ color: "#22c55e" }} />
           </div>
-          <h1 className="text-3xl font-bold tracking-tight text-white">PADWORTMS</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-white">TMS</h1>
           <p className="text-sm mt-1 font-medium" style={{ color: "#94a3b8" }}>
             Sistema de Tracking Terrestre
           </p>
-          <div className="flex items-center gap-2 mt-3">
-            <span className="text-xs font-semibold px-2 py-0.5 rounded" style={{ backgroundColor: "rgba(34,197,94,0.1)", color: "#22c55e", border: "1px solid rgba(34,197,94,0.2)" }}>
-              Padwor Group
-            </span>
-            <span style={{ color: "#475569" }} className="text-xs">×</span>
-            <span className="text-xs font-semibold px-2 py-0.5 rounded" style={{ backgroundColor: "rgba(34,197,94,0.1)", color: "#22c55e", border: "1px solid rgba(34,197,94,0.2)" }}>
-              Starb
-            </span>
-          </div>
         </div>
 
         {/* Form */}
@@ -190,7 +181,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-2">
               <span className="text-xs" style={{ color: "#64748b" }}>Usuario:</span>
-              <span className="text-xs font-mono" style={{ color: "#cbd5e1" }}>admin@padwortms.cl</span>
+              <span className="text-xs font-mono" style={{ color: "#cbd5e1" }}>admin@tms.cl</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-xs" style={{ color: "#64748b" }}>Contraseña:</span>
@@ -201,7 +192,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
 
         {/* Footer */}
         <p className="text-center text-xs mt-6" style={{ color: "#334155" }}>
-          PADWORTMS v2.0 — Padwor Group × Starb © 2026
+          TMS v2.0 © 2026
         </p>
       </div>
     </div>
