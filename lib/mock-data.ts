@@ -124,6 +124,8 @@ export const CONDUCTOR_NOMBRES = CONDUCTORES_MOCK.map((c) => c.nombre)
 
 export type EstadoOperacion = "En Ruta" | "En Puerto" | "Detenido" | "Entregado"
 
+export type EstadoFacturacion = "En curso" | "Entregado" | "Listo para facturar" | "Facturado"
+
 export interface Operation {
   id: string
   shipper: string
@@ -138,6 +140,8 @@ export interface Operation {
   statusDot: string
   lastEmail: string
   hasConfirm: boolean
+  kmRecorridos: number
+  estadoFacturacion: EstadoFacturacion
   fecha?: string
   origen?: string
   destino?: string
@@ -161,6 +165,8 @@ export const OPERATIONS_MOCK = [
     statusDot: "yellow",
     lastEmail: "Hoy 09:00",
     hasConfirm: false,
+    kmRecorridos: 285,
+    estadoFacturacion: "En curso" as const,
   },
   {
     id: "OP-002",
@@ -175,6 +181,8 @@ export const OPERATIONS_MOCK = [
     statusDot: "green",
     lastEmail: "Hoy 09:00",
     hasConfirm: false,
+    kmRecorridos: 120,
+    estadoFacturacion: "En curso" as const,
   },
   {
     id: "OP-003",
@@ -189,6 +197,8 @@ export const OPERATIONS_MOCK = [
     statusDot: "red",
     lastEmail: "Pendiente",
     hasConfirm: false,
+    kmRecorridos: 195,
+    estadoFacturacion: "En curso" as const,
   },
   {
     id: "OP-004",
@@ -203,6 +213,8 @@ export const OPERATIONS_MOCK = [
     statusDot: "orange",
     lastEmail: "Hace 30 min",
     hasConfirm: true,
+    kmRecorridos: 470,
+    estadoFacturacion: "En curso" as const,
   },
   {
     id: "OP-005",
@@ -217,6 +229,8 @@ export const OPERATIONS_MOCK = [
     statusDot: "yellow",
     lastEmail: "Hoy 09:00",
     hasConfirm: false,
+    kmRecorridos: 1020,
+    estadoFacturacion: "En curso" as const,
   },
 ] as const
 

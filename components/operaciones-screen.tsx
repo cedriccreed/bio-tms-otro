@@ -1,10 +1,11 @@
 "use client"
 
 import { useState } from "react"
-import { Plus, Eye, Pencil, RefreshCw, CheckCircle, X } from "lucide-react"
+import { Plus, Eye, Pencil, RefreshCw, CheckCircle, X, Zap } from "lucide-react"
 import {
   CONDUCTOR_NOMBRES,
   VEHICULO_PLACAS,
+  type EstadoFacturacion,
   type EstadoOperacion,
   type Operation,
 } from "@/lib/mock-data"
@@ -18,6 +19,12 @@ interface OperacionesScreenProps {
 type Estado = EstadoOperacion
 
 const ESTADOS: Estado[] = ["En Ruta", "En Puerto", "Detenido", "Entregado"]
+const ESTADOS_FACTURACION: EstadoFacturacion[] = [
+  "En curso",
+  "Entregado",
+  "Listo para facturar",
+  "Facturado",
+]
 
 const dotColors: Record<string, string> = {
   yellow: "#ca8a04",
@@ -43,6 +50,22 @@ interface EditForm {
   vehiculo: string
   conductor: string
   estado: Estado
+  estadoFacturacion: EstadoFacturacion
+}
+
+function facturacionBadgeStyle(
+  estado: EstadoFacturacion
+): { bg: string; color: string; border: string } {
+  switch (estado) {
+    case "En curso":
+      return { bg: "rgba(156,163,175,0.12)", color: "#6b7280", border: "rgba(156,163,175,0.25)" }
+    case "Entregado":
+      return { bg: "rgba(59,130,246,0.12)", color: "#2563eb", border: "rgba(59,130,246,0.25)" }
+    case "Listo para facturar":
+      return { bg: "rgba(249,115,22,0.12)", color: "#ea580c", border: "rgba(249,115,22,0.25)" }
+    case "Facturado":
+      return { bg: "rgba(0,0,0,0.06)", color: "#16a34a", border: "rgba(0,0,0,0.2)" }
+  }
 }
 
 function SelectField({
@@ -90,6 +113,7 @@ export default function OperacionesScreen({
     vehiculo: VEHICULO_PLACAS[0],
     conductor: CONDUCTOR_NOMBRES[0],
     estado: ESTADOS[0],
+    estadoFacturacion: "En curso",
   })
 
   const handleResend = (opId: string) => {
@@ -103,6 +127,7 @@ export default function OperacionesScreen({
       vehiculo: op.vehiculo,
       conductor: op.conductor,
       estado: op.estado,
+      estadoFacturacion: op.estadoFacturacion,
     })
   }
 
@@ -123,6 +148,7 @@ export default function OperacionesScreen({
               placa: editForm.vehiculo,
               conductor: editForm.conductor,
               estado: editForm.estado,
+              estadoFacturacion: editForm.estadoFacturacion,
               status: editForm.estado,
               ...styles,
               hasConfirm: op.hasConfirm,
@@ -167,7 +193,7 @@ export default function OperacionesScreen({
             <table className="w-full">
               <thead>
                 <tr style={{ backgroundColor: "#f9fafb" }}>
-                  {["OP", "CLIENTE", "PLACA", "RUTA", "STATUS", "ÚLTIMO EMAIL", "ACCIONES"].map((h) => (
+                  {["OP", "CLIENTE", "PLACA", "RUTA", "STATUS", "FACTURACIÓN", "ÚLTIMO EMAIL", "ACCIONES"].map((h) => (
                     <th
                       key={h}
                       className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider"
@@ -179,7 +205,9 @@ export default function OperacionesScreen({
                 </tr>
               </thead>
               <tbody>
-                {operations.map((op, i) => (
+                {operations.map((op, i) => {
+                  const factBadge = facturacionBadgeStyle(op.estadoFacturacion)
+                  return (
                   <tr
                     key={op.id}
                     className="transition-colors"
@@ -204,8 +232,11 @@ export default function OperacionesScreen({
                       </span>
                     </td>
                     <td className="px-5 py-3.5">
-                      <span className="text-xs" style={{ color: "#6b7280" }}>
+                      <span className="text-xs block" style={{ color: "#6b7280" }}>
                         {op.ruta}
+                      </span>
+                      <span className="text-[10px] block mt-0.5" style={{ color: "#9ca3af" }}>
+                        {op.kmRecorridos.toLocaleString("es-CL")} km
                       </span>
                     </td>
                     <td className="px-5 py-3.5">
@@ -218,6 +249,18 @@ export default function OperacionesScreen({
                           {op.status}
                         </span>
                       </div>
+                    </td>
+                    <td className="px-5 py-3.5">
+                      <span
+                        className="px-2.5 py-1 rounded-full text-xs font-semibold"
+                        style={{
+                          backgroundColor: factBadge.bg,
+                          color: factBadge.color,
+                          border: `1px solid ${factBadge.border}`,
+                        }}
+                      >
+                        {op.estadoFacturacion}
+                      </span>
                     </td>
                     <td className="px-5 py-3.5">
                       <span className="text-xs" style={{ color: "#9ca3af" }}>
@@ -281,7 +324,8 @@ export default function OperacionesScreen({
                       </div>
                     </td>
                   </tr>
-                ))}
+                  )
+                })}
               </tbody>
             </table>
           </div>
@@ -317,6 +361,36 @@ export default function OperacionesScreen({
               {editingOp.id} — {editingOp.shipper}
             </p>
 
+            <div
+              style={{
+                backgroundColor: "rgba(0,0,0,0.04)",
+                border: "1px solid #e5e7eb",
+                borderRadius: "8px",
+                padding: "10px 12px",
+                marginBottom: "12px",
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+              }}
+            >
+              <Zap className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "#16a34a" }} />
+              <span className="text-xs font-medium" style={{ color: "#16a34a" }}>
+                Reasignación rápida: cambia vehículo o conductor sin perder el historial de la operación
+              </span>
+            </div>
+
+            <div
+              className="px-3 py-2.5 rounded-lg text-sm"
+              style={{ backgroundColor: "rgba(0,0,0,0.04)", border: "1px solid #e5e7eb" }}
+            >
+              <span className="text-xs" style={{ color: "#9ca3af" }}>
+                Kilómetros recorridos
+              </span>
+              <p className="font-medium text-gray-900 mt-0.5">
+                {editingOp.kmRecorridos.toLocaleString("es-CL")} km
+              </p>
+            </div>
+
             <SelectField
               label="Vehículo"
               value={editForm.vehiculo}
@@ -334,6 +408,17 @@ export default function OperacionesScreen({
               value={editForm.estado}
               onChange={(estado) => setEditForm((f) => ({ ...f, estado: estado as Estado }))}
               options={ESTADOS}
+            />
+            <SelectField
+              label="Estado de facturación"
+              value={editForm.estadoFacturacion}
+              onChange={(estadoFacturacion) =>
+                setEditForm((f) => ({
+                  ...f,
+                  estadoFacturacion: estadoFacturacion as EstadoFacturacion,
+                }))
+              }
+              options={ESTADOS_FACTURACION}
             />
 
             <div className="flex gap-3 pt-1">
