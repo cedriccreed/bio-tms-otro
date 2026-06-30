@@ -1,12 +1,17 @@
 "use client"
 
 import { useState } from "react"
-import { RefreshCw, CheckCircle, ExternalLink, MapPin, Clock, Satellite, ChevronLeft, X } from "lucide-react"
-import { OPERATIONS_MOCK } from "@/lib/mock-data"
+import { RefreshCw, CheckCircle, ExternalLink, MapPin, Clock, Satellite, ChevronLeft, X, Navigation, Fuel, TrendingUp } from "lucide-react"
+import {
+  calcularCostoCombustiblePorOperacion,
+  calcularCostoPorKm,
+  type Operation,
+} from "@/lib/mock-data"
 
 interface DetalleOperacionProps {
   operationId?: string
   onNavigate: (screen: string) => void
+  operations: Operation[]
 }
 
 interface TabularData {
@@ -37,8 +42,8 @@ const timelineEvents = [
   { done: false, date: "11 Jun 18:00", text: "Próximo envío programado" },
 ]
 
-function getOpDetail(operationId: string) {
-  const op = OPERATIONS_MOCK.find((o) => o.id === operationId) ?? OPERATIONS_MOCK[0]
+function getOpDetail(operationId: string, operations: Operation[]) {
+  const op = operations.find((o) => o.id === operationId) ?? operations[0]
   const [origen, destino] = op.ruta.includes("→")
     ? op.ruta.split("—")[1]?.trim().split("→").map((s) => s.trim()) ?? ["San Antonio", "Destino"]
     : ["San Antonio", "Destino"]
@@ -257,11 +262,16 @@ function GmailThreadEmail({
   )
 }
 
-export default function DetalleOperacionScreen({ operationId = "OP-001", onNavigate }: DetalleOperacionProps) {
+export default function DetalleOperacionScreen({
+  operationId = "OP-001",
+  onNavigate,
+  operations,
+}: DetalleOperacionProps) {
   const [showGmailModal, setShowGmailModal] = useState(false)
   const [expandedEmails, setExpandedEmails] = useState<Set<number>>(new Set([5]))
 
-  const detail = getOpDetail(operationId)
+  const op = operations.find((o) => o.id === operationId) ?? operations[0]
+  const detail = getOpDetail(operationId, operations)
   const opData = [
     { label: "Origen", value: detail.origen },
     { label: "Destino", value: detail.destino },
@@ -271,9 +281,16 @@ export default function DetalleOperacionScreen({ operationId = "OP-001", onNavig
     { label: "Guía despacho", value: detail.guia },
     { label: "Tipo carga", value: detail.carga },
     { label: "Transportista", value: detail.transportista },
+    {
+      label: "Kilómetros recorridos (en tiempo real vía GPS)",
+      value: `${op.kmRecorridos.toLocaleString("es-CL")} km`,
+      icon: Navigation,
+    },
   ]
   const gmailThread = buildGmailThread(operationId, detail.cliente)
   const threadSubject = `${operationId} / ${detail.ruta} / ${detail.cliente}`
+  const costoCombustible = calcularCostoCombustiblePorOperacion(op.placa, op.kmRecorridos)
+  const costoPorKm = calcularCostoPorKm(op.placa)
 
   const openGmailModal = () => {
     setExpandedEmails(new Set([gmailThread.length - 1]))
@@ -325,12 +342,54 @@ export default function DetalleOperacionScreen({ operationId = "OP-001", onNavig
           Datos de la Operación
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          {opData.map(({ label, value }) => (
+          {opData.map(({ label, value, icon: Icon }) => (
             <div key={label} className="flex flex-col gap-0.5">
-              <span className="text-xs" style={{ color: "#9ca3af" }}>{label}</span>
+              <span className="text-xs flex items-center gap-1" style={{ color: "#9ca3af" }}>
+                {Icon && <Icon className="w-3 h-3 flex-shrink-0" />}
+                {label}
+              </span>
               <span className="text-sm font-semibold text-gray-900">{value}</span>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Análisis de Costos */}
+      <div
+        className="rounded-xl p-5"
+        style={{ backgroundColor: "#fafafa", border: "1px solid #e5e7eb" }}
+      >
+        <h2 className="text-xs font-semibold uppercase tracking-wider mb-4" style={{ color: "#9ca3af" }}>
+          Análisis de Costos
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="flex flex-col gap-0.5">
+            <span className="text-xs flex items-center gap-1" style={{ color: "#9ca3af" }}>
+              <Navigation className="w-3 h-3 flex-shrink-0" />
+              Kilómetros recorridos
+            </span>
+            <span className="text-sm font-semibold text-gray-900">
+              {op.kmRecorridos.toLocaleString("es-CL")} km
+            </span>
+          </div>
+          <div className="flex flex-col gap-0.5">
+            <span className="text-xs flex items-center gap-1" style={{ color: "#9ca3af" }}>
+              <Fuel className="w-3 h-3 flex-shrink-0" />
+              Costo combustible estimado
+            </span>
+            <span className="text-sm font-semibold text-gray-900">
+              ${costoCombustible.toLocaleString("es-CL")} CLP
+            </span>
+          </div>
+          <div className="flex flex-col gap-0.5">
+            <span className="text-xs flex items-center gap-1" style={{ color: "#9ca3af" }}>
+              <TrendingUp className="w-3 h-3 flex-shrink-0" />
+              Costo por kilómetro
+            </span>
+            <span className="text-sm font-semibold text-gray-900">
+              ${costoPorKm.toLocaleString("es-CL")}/km
+            </span>
+          </div>
         </div>
       </div>
 
@@ -448,6 +507,49 @@ export default function DetalleOperacionScreen({ operationId = "OP-001", onNavig
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Historial de Cambios */}
+      <div
+        className="rounded-xl p-5"
+        style={{ backgroundColor: "#ffffff", border: "1px solid #e5e7eb" }}
+      >
+        <h2 className="text-sm font-semibold text-gray-900">Historial de Cambios</h2>
+        <p className="text-xs mt-0.5 mb-4" style={{ color: "#9ca3af" }}>
+          Registro de modificaciones a la operación
+        </p>
+        {op.historialCambios && op.historialCambios.length > 0 ? (
+          <div className="flex flex-col gap-3">
+            {[...op.historialCambios].reverse().map((cambio) => (
+              <div
+                key={cambio.id}
+                style={{
+                  border: "1px solid #e5e7eb",
+                  borderRadius: "8px",
+                  padding: "12px",
+                }}
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs font-semibold" style={{ color: "#111827" }}>
+                    {cambio.campo} modificado
+                  </span>
+                  <span className="text-xs" style={{ color: "#9ca3af" }}>
+                    {cambio.fecha}
+                  </span>
+                </div>
+                <p className="text-xs" style={{ color: "#6b7280" }}>
+                  <span style={{ textDecoration: "line-through" }}>{cambio.valorAnterior}</span>
+                  {" → "}
+                  <span style={{ color: "#111827", fontWeight: 600 }}>{cambio.valorNuevo}</span>
+                </p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm" style={{ color: "#9ca3af" }}>
+            Sin cambios registrados en esta operación
+          </p>
+        )}
       </div>
 
       {/* Bottom action bar */}

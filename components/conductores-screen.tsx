@@ -5,6 +5,7 @@ import { Plus, Pencil, UserX, X, Users, UserCheck, UserMinus, UserPlus } from "l
 import {
   CONDUCTORES_INICIALES,
   VEHICULO_PLACAS,
+  type ConductorFlota,
   type EstadoConductor,
 } from "@/lib/mock-data"
 
@@ -12,15 +13,7 @@ interface ConductoresScreenProps {
   onNavigate: (screen: string, opId?: string) => void
 }
 
-interface Conductor {
-  id: string
-  nombre: string
-  rut: string
-  telefono: string
-  vehiculoAsignado: string
-  estado: EstadoConductor
-  activo: boolean
-}
+type Conductor = ConductorFlota
 
 interface ConductorForm {
   nombre: string

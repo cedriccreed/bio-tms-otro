@@ -1,10 +1,12 @@
 "use client"
 
 import { useState } from "react"
-import { Plus, Eye, Pencil, RefreshCw, CheckCircle, X, Zap } from "lucide-react"
+import { Plus, Eye, Pencil, RefreshCw, CheckCircle, X, Zap, Navigation, Fuel } from "lucide-react"
 import {
   CONDUCTOR_NOMBRES,
   VEHICULO_PLACAS,
+  calcularCostoCombustiblePorOperacion,
+  type CambioOperacion,
   type EstadoFacturacion,
   type EstadoOperacion,
   type Operation,
@@ -139,6 +141,55 @@ export default function OperacionesScreen({
     if (!editingOp) return
 
     const styles = estadoStyles(editForm.estado)
+    const cambios: CambioOperacion[] = []
+    const fechaActual = new Date().toLocaleString("es-CL", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    })
+
+    if (editingOp.placa !== editForm.vehiculo) {
+      cambios.push({
+        id: `CH-${Date.now()}-1`,
+        fecha: fechaActual,
+        campo: "Vehículo",
+        valorAnterior: editingOp.placa,
+        valorNuevo: editForm.vehiculo,
+      })
+    }
+
+    if (editingOp.conductor !== editForm.conductor) {
+      cambios.push({
+        id: `CH-${Date.now()}-2`,
+        fecha: fechaActual,
+        campo: "Conductor",
+        valorAnterior: editingOp.conductor,
+        valorNuevo: editForm.conductor,
+      })
+    }
+
+    if (editingOp.estado !== editForm.estado) {
+      cambios.push({
+        id: `CH-${Date.now()}-3`,
+        fecha: fechaActual,
+        campo: "Estado",
+        valorAnterior: editingOp.estado,
+        valorNuevo: editForm.estado,
+      })
+    }
+
+    if (editingOp.estadoFacturacion !== editForm.estadoFacturacion) {
+      cambios.push({
+        id: `CH-${Date.now()}-4`,
+        fecha: fechaActual,
+        campo: "Facturación",
+        valorAnterior: editingOp.estadoFacturacion,
+        valorNuevo: editForm.estadoFacturacion,
+      })
+    }
+
     onUpdateOperations(
       operations.map((op) =>
         op.id === editingOp.id
@@ -152,6 +203,7 @@ export default function OperacionesScreen({
               status: editForm.estado,
               ...styles,
               hasConfirm: op.hasConfirm,
+              historialCambios: [...(editingOp.historialCambios ?? []), ...cambios],
             }
           : op
       )
@@ -193,7 +245,7 @@ export default function OperacionesScreen({
             <table className="w-full">
               <thead>
                 <tr style={{ backgroundColor: "#f9fafb" }}>
-                  {["OP", "CLIENTE", "PLACA", "RUTA", "STATUS", "FACTURACIÓN", "ÚLTIMO EMAIL", "ACCIONES"].map((h) => (
+                  {["OP", "CLIENTE", "PLACA", "RUTA", "STATUS", "FACTURACIÓN", "COSTO COMBUSTIBLE", "ÚLTIMO EMAIL", "ACCIONES"].map((h) => (
                     <th
                       key={h}
                       className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider"
@@ -207,6 +259,7 @@ export default function OperacionesScreen({
               <tbody>
                 {operations.map((op, i) => {
                   const factBadge = facturacionBadgeStyle(op.estadoFacturacion)
+                  const costoCombustible = calcularCostoCombustiblePorOperacion(op.placa, op.kmRecorridos)
                   return (
                   <tr
                     key={op.id}
@@ -235,8 +288,9 @@ export default function OperacionesScreen({
                       <span className="text-xs block" style={{ color: "#6b7280" }}>
                         {op.ruta}
                       </span>
-                      <span className="text-[10px] block mt-0.5" style={{ color: "#9ca3af" }}>
-                        {op.kmRecorridos.toLocaleString("es-CL")} km
+                      <span className="text-[10px] flex items-center gap-1 mt-0.5" style={{ color: "#9ca3af" }}>
+                        <Navigation className="w-3 h-3 flex-shrink-0" />
+                        Km recorridos (GPS): {op.kmRecorridos.toLocaleString("es-CL")} km
                       </span>
                     </td>
                     <td className="px-5 py-3.5">
@@ -260,6 +314,12 @@ export default function OperacionesScreen({
                         }}
                       >
                         {op.estadoFacturacion}
+                      </span>
+                    </td>
+                    <td className="px-5 py-3.5">
+                      <span className="text-xs flex items-center gap-1 font-medium" style={{ color: "#374151" }}>
+                        <Fuel className="w-3 h-3 flex-shrink-0" style={{ color: "#6b7280" }} />
+                        ${costoCombustible.toLocaleString("es-CL")}
                       </span>
                     </td>
                     <td className="px-5 py-3.5">
@@ -383,11 +443,25 @@ export default function OperacionesScreen({
               className="px-3 py-2.5 rounded-lg text-sm"
               style={{ backgroundColor: "rgba(0,0,0,0.04)", border: "1px solid #e5e7eb" }}
             >
-              <span className="text-xs" style={{ color: "#9ca3af" }}>
-                Kilómetros recorridos
+              <span className="text-xs flex items-center gap-1" style={{ color: "#9ca3af" }}>
+                <Navigation className="w-3 h-3" />
+                Km recorridos (GPS)
               </span>
               <p className="font-medium text-gray-900 mt-0.5">
                 {editingOp.kmRecorridos.toLocaleString("es-CL")} km
+              </p>
+            </div>
+
+            <div
+              className="px-3 py-2.5 rounded-lg text-sm"
+              style={{ backgroundColor: "rgba(0,0,0,0.04)", border: "1px solid #e5e7eb" }}
+            >
+              <span className="text-xs flex items-center gap-1" style={{ color: "#9ca3af" }}>
+                <Fuel className="w-3 h-3" />
+                Costo combustible (calculado)
+              </span>
+              <p className="font-medium text-gray-900 mt-0.5">
+                ${calcularCostoCombustiblePorOperacion(editingOp.placa, editingOp.kmRecorridos).toLocaleString("es-CL")} CLP
               </p>
             </div>
 

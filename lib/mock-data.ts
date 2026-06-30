@@ -71,7 +71,44 @@ export const CONDUCTORES_MOCK = [
 
 export type EstadoConductor = "Disponible" | "No disponible"
 
-export const CONDUCTORES_INICIALES = [
+export type TipoEntidad = "Vehiculo" | "Conductor"
+export type EstadoDocumento = "Vigente" | "Por vencer" | "Vencido"
+
+export interface DocumentoCentral {
+  id: string
+  tipoEntidad: TipoEntidad
+  entidadId: string
+  entidadNombre: string
+  tipoDocumento: string
+  fechaInicio: string
+  fechaFin: string
+  fechaUltimoControl: string | null
+  fechaProximoControl: string | null
+  archivoNombre: string | null
+}
+
+export function calcularEstadoDocumento(fechaFin: string): EstadoDocumento {
+  const hoy = new Date()
+  const vencimiento = new Date(fechaFin)
+  const diasRestantes = Math.ceil(
+    (vencimiento.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24)
+  )
+  if (diasRestantes < 0) return "Vencido"
+  if (diasRestantes <= 30) return "Por vencer"
+  return "Vigente"
+}
+
+export interface ConductorFlota {
+  id: string
+  nombre: string
+  rut: string
+  telefono: string
+  vehiculoAsignado: string
+  estado: EstadoConductor
+  activo: boolean
+}
+
+export const CONDUCTORES_INICIALES: ConductorFlota[] = [
   {
     id: "C001",
     nombre: "Carlos Fuentes Rojas",
@@ -126,6 +163,14 @@ export type EstadoOperacion = "En Ruta" | "En Puerto" | "Detenido" | "Entregado"
 
 export type EstadoFacturacion = "En curso" | "Entregado" | "Listo para facturar" | "Facturado"
 
+export interface CambioOperacion {
+  id: string
+  fecha: string
+  campo: "Vehículo" | "Conductor" | "Estado" | "Facturación"
+  valorAnterior: string
+  valorNuevo: string
+}
+
 export interface Operation {
   id: string
   shipper: string
@@ -140,6 +185,8 @@ export interface Operation {
   statusDot: string
   lastEmail: string
   hasConfirm: boolean
+  // kmRecorridos: calculado automáticamente por GPS
+  // desde inicio hasta fin de operación, no estimado
   kmRecorridos: number
   estadoFacturacion: EstadoFacturacion
   fecha?: string
@@ -149,9 +196,10 @@ export interface Operation {
   horaInicioDescarga?: string
   guiaDespacho?: string
   tipoCarga?: string
+  historialCambios?: CambioOperacion[]
 }
 
-export const OPERATIONS_MOCK = [
+export const OPERATIONS_MOCK: Operation[] = [
   {
     id: "OP-001",
     shipper: "Distribuidora Maule Sur",
@@ -167,6 +215,7 @@ export const OPERATIONS_MOCK = [
     hasConfirm: false,
     kmRecorridos: 285,
     estadoFacturacion: "En curso" as const,
+    historialCambios: [],
   },
   {
     id: "OP-002",
@@ -183,6 +232,7 @@ export const OPERATIONS_MOCK = [
     hasConfirm: false,
     kmRecorridos: 120,
     estadoFacturacion: "En curso" as const,
+    historialCambios: [],
   },
   {
     id: "OP-003",
@@ -199,6 +249,7 @@ export const OPERATIONS_MOCK = [
     hasConfirm: false,
     kmRecorridos: 195,
     estadoFacturacion: "En curso" as const,
+    historialCambios: [],
   },
   {
     id: "OP-004",
@@ -215,6 +266,7 @@ export const OPERATIONS_MOCK = [
     hasConfirm: true,
     kmRecorridos: 470,
     estadoFacturacion: "En curso" as const,
+    historialCambios: [],
   },
   {
     id: "OP-005",
@@ -231,8 +283,9 @@ export const OPERATIONS_MOCK = [
     hasConfirm: false,
     kmRecorridos: 1020,
     estadoFacturacion: "En curso" as const,
+    historialCambios: [],
   },
-] as const
+]
 
 export const MANTENIMIENTOS_MOCK = [
   {
@@ -277,12 +330,193 @@ export const MANTENIMIENTOS_MOCK = [
   },
 ]
 
-export const VEHICULOS_FLOTA_MOCK = [
-  { ...VEHICULOS_MOCK[0], operacion: "OP-001", estado: "Activo", estadoColor: "#16a34a", estadoDot: "green" },
-  { ...VEHICULOS_MOCK[1], operacion: "OP-002", estado: "Activo", estadoColor: "#16a34a", estadoDot: "green" },
-  { ...VEHICULOS_MOCK[2], operacion: "OP-003", estado: "Activo", estadoColor: "#16a34a", estadoDot: "green" },
-  { ...VEHICULOS_MOCK[3], operacion: "OP-004", estado: "En zona final", estadoColor: "#ea580c", estadoDot: "orange" },
-  { ...VEHICULOS_MOCK[4], operacion: "OP-005", estado: "Activo", estadoColor: "#16a34a", estadoDot: "green" },
+export type EstadoVehiculo = "Activo" | "Inactivo"
+
+export interface VehiculoFlota {
+  id: string
+  placa: string
+  marca: string
+  modelo: string
+  anio: string
+  vin: string
+  estado: EstadoVehiculo
+  operacionAsociada: string | null
+}
+
+export const VEHICULOS_FLOTA_MOCK: VehiculoFlota[] = [
+  {
+    id: "V001",
+    placa: "BJRT45",
+    marca: "Scania",
+    modelo: "R450",
+    anio: "2021",
+    vin: "9BSC4X2004B123456",
+    estado: "Activo",
+    operacionAsociada: null,
+  },
+  {
+    id: "V002",
+    placa: "FKWM23",
+    marca: "Volvo",
+    modelo: "FH500",
+    anio: "2020",
+    vin: "9BVL4X2004B234567",
+    estado: "Activo",
+    operacionAsociada: null,
+  },
+  {
+    id: "V003",
+    placa: "GHRP67",
+    marca: "Mercedes",
+    modelo: "Actros 2651",
+    anio: "2022",
+    vin: "9BMB4X2004B345678",
+    estado: "Activo",
+    operacionAsociada: null,
+  },
+  {
+    id: "V004",
+    placa: "CKND89",
+    marca: "Kenworth",
+    modelo: "T680",
+    anio: "2019",
+    vin: "9BKW4X2004B456789",
+    estado: "Activo",
+    operacionAsociada: null,
+  },
+  {
+    id: "V005",
+    placa: "HLVT34",
+    marca: "Scania",
+    modelo: "R500",
+    anio: "2023",
+    vin: "9BSC4X2004B567890",
+    estado: "Activo",
+    operacionAsociada: null,
+  },
+]
+
+export const DOCUMENTOS_MOCK: DocumentoCentral[] = [
+  {
+    id: "DOC-001",
+    tipoEntidad: "Vehiculo",
+    entidadId: "BJRT45",
+    entidadNombre: "BJRT45",
+    tipoDocumento: "Permiso de circulación",
+    fechaInicio: "2026-03-15",
+    fechaFin: "2027-03-15",
+    fechaUltimoControl: "2026-03-15",
+    fechaProximoControl: "2027-03-15",
+    archivoNombre: "permiso_bjrt45.pdf",
+  },
+  {
+    id: "DOC-002",
+    tipoEntidad: "Vehiculo",
+    entidadId: "BJRT45",
+    entidadNombre: "BJRT45",
+    tipoDocumento: "Revisión técnica",
+    fechaInicio: "2026-01-10",
+    fechaFin: "2026-07-10",
+    fechaUltimoControl: "2026-01-10",
+    fechaProximoControl: "2026-07-10",
+    archivoNombre: "revision_bjrt45.pdf",
+  },
+  {
+    id: "DOC-003",
+    tipoEntidad: "Vehiculo",
+    entidadId: "FKWM23",
+    entidadNombre: "FKWM23",
+    tipoDocumento: "Seguro obligatorio SOAP",
+    fechaInicio: "2025-07-05",
+    fechaFin: "2026-07-05",
+    fechaUltimoControl: null,
+    fechaProximoControl: null,
+    archivoNombre: "soap_fkwm23.pdf",
+  },
+  {
+    id: "DOC-004",
+    tipoEntidad: "Vehiculo",
+    entidadId: "GHRP67",
+    entidadNombre: "GHRP67",
+    tipoDocumento: "Revisión técnica",
+    fechaInicio: "2025-09-30",
+    fechaFin: "2026-09-30",
+    fechaUltimoControl: "2025-09-30",
+    fechaProximoControl: "2026-09-30",
+    archivoNombre: "revision_ghrp67.pdf",
+  },
+  {
+    id: "DOC-005",
+    tipoEntidad: "Vehiculo",
+    entidadId: "CKND89",
+    entidadNombre: "CKND89",
+    tipoDocumento: "Permiso de circulación",
+    fechaInicio: "2025-07-02",
+    fechaFin: "2026-07-02",
+    fechaUltimoControl: null,
+    fechaProximoControl: null,
+    archivoNombre: "permiso_cknd89.pdf",
+  },
+  {
+    id: "DOC-006",
+    tipoEntidad: "Conductor",
+    entidadId: "C001",
+    entidadNombre: "Carlos Fuentes Rojas",
+    tipoDocumento: "Licencia clase A4",
+    fechaInicio: "2021-09-15",
+    fechaFin: "2026-09-15",
+    fechaUltimoControl: null,
+    fechaProximoControl: null,
+    archivoNombre: "licencia_c001.pdf",
+  },
+  {
+    id: "DOC-007",
+    tipoEntidad: "Conductor",
+    entidadId: "C002",
+    entidadNombre: "Pedro Muñoz Soto",
+    tipoDocumento: "Licencia clase A4",
+    fechaInicio: "2021-07-08",
+    fechaFin: "2026-07-08",
+    fechaUltimoControl: null,
+    fechaProximoControl: null,
+    archivoNombre: "licencia_c002.pdf",
+  },
+  {
+    id: "DOC-008",
+    tipoEntidad: "Conductor",
+    entidadId: "C003",
+    entidadNombre: "Juan Herrera Lagos",
+    tipoDocumento: "Certificado de antecedentes",
+    fechaInicio: "2025-08-14",
+    fechaFin: "2026-08-14",
+    fechaUltimoControl: null,
+    fechaProximoControl: null,
+    archivoNombre: "antecedentes_c003.pdf",
+  },
+  {
+    id: "DOC-009",
+    tipoEntidad: "Conductor",
+    entidadId: "C004",
+    entidadNombre: "Luis Pérez Castillo",
+    tipoDocumento: "Licencia clase A4",
+    fechaInicio: "2021-07-25",
+    fechaFin: "2026-07-25",
+    fechaUltimoControl: null,
+    fechaProximoControl: null,
+    archivoNombre: "licencia_c004.pdf",
+  },
+  {
+    id: "DOC-010",
+    tipoEntidad: "Vehiculo",
+    entidadId: "HLVT34",
+    entidadNombre: "HLVT34",
+    tipoDocumento: "Seguro obligatorio SOAP",
+    fechaInicio: "2025-08-08",
+    fechaFin: "2026-08-08",
+    fechaUltimoControl: null,
+    fechaProximoControl: null,
+    archivoNombre: "soap_hlvt34.pdf",
+  },
 ]
 
 export type EstadoSeguimiento = "En ruta" | "Detenido" | "Apagado"
@@ -362,3 +596,104 @@ export const POSICIONES_DEMO: PosicionDemo[] = [
     ultimaActualizacion: "Hace 45 min",
   },
 ]
+
+export interface CompraCombustible {
+  id: string
+  fecha: string
+  vehiculo: string
+  litros: number
+  precioLitro: number
+  costoTotal: number
+  kilometraje: number
+  estacion: string
+}
+
+export const COMBUSTIBLE_MOCK: CompraCombustible[] = [
+  {
+    id: "COMB-001",
+    fecha: "2026-06-20",
+    vehiculo: "BJRT45",
+    litros: 180,
+    precioLitro: 980,
+    costoTotal: 176400,
+    kilometraje: 145200,
+    estacion: "Copec San Antonio",
+  },
+  {
+    id: "COMB-002",
+    fecha: "2026-06-21",
+    vehiculo: "FKWM23",
+    litros: 165,
+    precioLitro: 975,
+    costoTotal: 160875,
+    kilometraje: 98400,
+    estacion: "Shell Talca",
+  },
+  {
+    id: "COMB-003",
+    fecha: "2026-06-22",
+    vehiculo: "GHRP67",
+    litros: 195,
+    precioLitro: 982,
+    costoTotal: 191490,
+    kilometraje: 210500,
+    estacion: "Copec Rancagua",
+  },
+  {
+    id: "COMB-004",
+    fecha: "2026-06-23",
+    vehiculo: "CKND89",
+    litros: 210,
+    precioLitro: 978,
+    costoTotal: 205380,
+    kilometraje: 178300,
+    estacion: "Petrobras La Serena",
+  },
+  {
+    id: "COMB-005",
+    fecha: "2026-06-24",
+    vehiculo: "HLVT34",
+    litros: 175,
+    precioLitro: 985,
+    costoTotal: 172375,
+    kilometraje: 256800,
+    estacion: "Copec Santiago",
+  },
+  {
+    id: "COMB-006",
+    fecha: "2026-06-25",
+    vehiculo: "BJRT45",
+    litros: 170,
+    precioLitro: 990,
+    costoTotal: 168300,
+    kilometraje: 145800,
+    estacion: "Copec San Antonio",
+  },
+]
+
+export function calcularCostoCombustiblePorOperacion(
+  placa: string,
+  kmRecorridos: number
+): number {
+  const comprasVehiculo = COMBUSTIBLE_MOCK.filter((c) => c.vehiculo === placa)
+  if (comprasVehiculo.length === 0 || kmRecorridos === 0) return 0
+
+  const totalLitros = comprasVehiculo.reduce((sum, c) => sum + c.litros, 0)
+  const totalCosto = comprasVehiculo.reduce((sum, c) => sum + c.costoTotal, 0)
+  const costoPromedioPorLitro = totalCosto / totalLitros
+
+  const litrosEstimados = kmRecorridos / 2.8
+  return Math.round(litrosEstimados * costoPromedioPorLitro)
+}
+
+export function calcularCostoPorKm(placa: string): number {
+  const comprasVehiculo = COMBUSTIBLE_MOCK.filter((c) => c.vehiculo === placa)
+  if (comprasVehiculo.length === 0) return 0
+
+  const totalLitros = comprasVehiculo.reduce((sum, c) => sum + c.litros, 0)
+  const totalCosto = comprasVehiculo.reduce((sum, c) => sum + c.costoTotal, 0)
+  const costoPromedioPorLitro = totalCosto / totalLitros
+  const consumoPromedio = 2.8
+
+  return Math.round(costoPromedioPorLitro / consumoPromedio)
+}

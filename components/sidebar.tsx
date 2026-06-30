@@ -1,9 +1,9 @@
 "use client"
 
-import { Truck, LayoutDashboard, ClipboardList, Plus, Settings, Circle, Menu, X, Wrench, Users, MapPin } from "lucide-react"
+import { Truck, LayoutDashboard, ClipboardList, Plus, Settings, Circle, Menu, X, Wrench, Users, MapPin, Fuel, FileText } from "lucide-react"
 import { useState } from "react"
 
-type Screen = "dashboard" | "operaciones" | "seguimiento" | "vehiculos" | "conductores" | "mantenimientos" | "nueva" | "configuracion" | "detalle" | "alerta"
+type Screen = "dashboard" | "operaciones" | "seguimiento" | "vehiculos" | "conductores" | "documentacion" | "mantenimientos" | "combustible" | "nueva" | "configuracion" | "detalle" | "alerta"
 
 interface SidebarProps {
   activeScreen: Screen
@@ -17,7 +17,9 @@ const navItems = [
   { id: "seguimiento" as Screen, label: "Seguimiento", icon: MapPin },
   { id: "vehiculos" as Screen, label: "Vehículos", icon: Truck },
   { id: "conductores" as Screen, label: "Conductores", icon: Users },
+  { id: "documentacion" as Screen, label: "Documentación", icon: FileText },
   { id: "mantenimientos" as Screen, label: "Mantenimientos", icon: Wrench },
+  { id: "combustible" as Screen, label: "Combustible", icon: Fuel },
   { id: "nueva" as Screen, label: "Nueva Operación", icon: Plus },
   { id: "configuracion" as Screen, label: "Configuración", icon: Settings },
 ]

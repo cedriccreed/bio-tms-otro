@@ -4,8 +4,8 @@ import dynamic from "next/dynamic"
 import { useEffect, useRef, useState } from "react"
 import { MoreVertical } from "lucide-react"
 import {
+  OPERATIONS_MOCK,
   POSICIONES_DEMO,
-  VEHICULOS_FLOTA_MOCK,
   VEHICULOS_MOCK,
   type EstadoSeguimiento,
   type PosicionDemo,
@@ -46,7 +46,10 @@ function getMarcaModelo(patente: string): string {
 }
 
 function getOperacionId(patente: string): string | undefined {
-  return VEHICULOS_FLOTA_MOCK.find((v) => v.placa === patente)?.operacion
+  const op = OPERATIONS_MOCK.find(
+    (o) => o.placa === patente && (o.estado as string) !== "Entregado"
+  )
+  return op?.id
 }
 
 function DetailRow({ label, value }: { label: string; value: string }) {

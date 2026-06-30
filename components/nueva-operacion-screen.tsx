@@ -232,7 +232,6 @@ export default function NuevaOperacionScreen({
   const [destino, setDestino] = useState("")
   const [horaCarga, setHoraCarga] = useState("")
   const [horaDescarga, setHoraDescarga] = useState("")
-  const [kmRecorridos, setKmRecorridos] = useState("")
   const [vehiculo, setVehiculo] = useState("")
   const [conductor, setConductor] = useState("")
   const [guiaDespacho, setGuiaDespacho] = useState("")
@@ -252,9 +251,6 @@ export default function NuevaOperacionScreen({
     origen !== destino &&
     horaCarga !== "" &&
     horaDescarga !== "" &&
-    kmRecorridos.trim() !== "" &&
-    !Number.isNaN(parseInt(kmRecorridos, 10)) &&
-    parseInt(kmRecorridos, 10) > 0 &&
     vehiculo !== "" &&
     conductor !== "" &&
     guiaDespacho.trim() !== "" &&
@@ -285,8 +281,9 @@ export default function NuevaOperacionScreen({
       destino,
       estado: "En Ruta",
       fecha,
-      kmRecorridos: parseInt(kmRecorridos, 10),
+      kmRecorridos: 0,
       estadoFacturacion: "En curso",
+      historialCambios: [],
     })
   }
 
@@ -362,21 +359,6 @@ export default function NuevaOperacionScreen({
               onChange={setHoraDescarga}
               required
             />
-            <div className="flex flex-col gap-1.5">
-              <FieldLabel label="Kilómetros estimados de recorrido" required />
-              <input
-                type="number"
-                min={1}
-                value={kmRecorridos}
-                onChange={(e) => setKmRecorridos(e.target.value)}
-                placeholder="Ej: 285"
-                required
-                className="px-3 py-2.5 rounded-lg text-sm text-gray-900 placeholder:text-gray-400 outline-none transition-all"
-                style={{ backgroundColor: "#f9fafb", border: "1px solid #e5e7eb" }}
-                onFocus={(e) => (e.target.style.borderColor = "#000000")}
-                onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
-              />
-            </div>
           </div>
           {origen && destino && origen === destino && (
             <p className="text-xs mt-3" style={{ color: "#dc2626" }}>

@@ -1,8 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { Bell } from "lucide-react"
-import { OPERATIONS_MOCK, type Operation } from "@/lib/mock-data"
+import { OPERATIONS_MOCK, VEHICULOS_FLOTA_MOCK, type Operation, type VehiculoFlota } from "@/lib/mock-data"
 import Sidebar from "./sidebar"
 import DashboardScreen from "./dashboard-screen"
 import OperacionesScreen from "./operaciones-screen"
@@ -14,8 +14,10 @@ import VehiculosScreen from "./vehiculos-screen"
 import MantenimientosScreen from "./mantenimientos-screen"
 import ConductoresScreen from "./conductores-screen"
 import SeguimientoScreen from "./seguimiento-screen"
+import CombustibleScreen from "./combustible-screen"
+import DocumentacionScreen from "./documentacion-screen"
 
-type Screen = "dashboard" | "operaciones" | "seguimiento" | "vehiculos" | "conductores" | "mantenimientos" | "nueva" | "configuracion" | "detalle" | "alerta"
+type Screen = "dashboard" | "operaciones" | "seguimiento" | "vehiculos" | "conductores" | "documentacion" | "mantenimientos" | "combustible" | "nueva" | "configuracion" | "detalle" | "alerta"
 
 interface DashboardAppProps {
   onLogout: () => void
@@ -26,6 +28,18 @@ export default function DashboardApp({ onLogout }: DashboardAppProps) {
   const [selectedOpId, setSelectedOpId] = useState<string>("OP-001")
   const [operations, setOperations] = useState<Operation[]>(
     OPERATIONS_MOCK.map((op) => ({ ...op }))
+  )
+  const [vehiculos, setVehiculos] = useState<VehiculoFlota[]>(
+    VEHICULOS_FLOTA_MOCK.map((v) => ({ ...v }))
+  )
+
+  const vehiculosConOperacion = useMemo(
+    () =>
+      vehiculos.map((v) => {
+        const op = operations.find((o) => o.placa === v.placa && o.estado !== "Entregado")
+        return { ...v, operacionAsociada: op?.id ?? null }
+      }),
+    [vehiculos, operations]
   )
 
   const handleNavigate = (screen: string, opId?: string) => {
@@ -39,7 +53,9 @@ export default function DashboardApp({ onLogout }: DashboardAppProps) {
     seguimiento: "Seguimiento",
     vehiculos: "Vehículos",
     conductores: "Conductores",
+    documentacion: "Documentación",
     mantenimientos: "Mantenimientos",
+    combustible: "Compra de Combustible",
     nueva: "Nueva Operación",
     configuracion: "Configuración",
     detalle: "Detalle Operación",
@@ -61,11 +77,21 @@ export default function DashboardApp({ onLogout }: DashboardAppProps) {
       case "seguimiento":
         return <SeguimientoScreen onNavigate={handleNavigate} />
       case "vehiculos":
-        return <VehiculosScreen />
+        return (
+          <VehiculosScreen
+            vehiculos={vehiculosConOperacion}
+            onUpdateVehiculos={setVehiculos}
+            operations={operations}
+          />
+        )
       case "conductores":
         return <ConductoresScreen onNavigate={handleNavigate} />
+      case "documentacion":
+        return <DocumentacionScreen onNavigate={handleNavigate} />
       case "mantenimientos":
         return <MantenimientosScreen onNavigate={handleNavigate} />
+      case "combustible":
+        return <CombustibleScreen onNavigate={handleNavigate} />
       case "nueva":
         return (
           <NuevaOperacionScreen
@@ -78,7 +104,7 @@ export default function DashboardApp({ onLogout }: DashboardAppProps) {
           />
         )
       case "detalle":
-        return <DetalleOperacionScreen operationId={selectedOpId} onNavigate={handleNavigate} />
+        return <DetalleOperacionScreen operationId={selectedOpId} onNavigate={handleNavigate} operations={operations} />
       case "alerta":
         return <AlertaScreen onNavigate={handleNavigate} />
       case "configuracion":

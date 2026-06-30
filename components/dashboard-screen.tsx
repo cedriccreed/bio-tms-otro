@@ -1,8 +1,15 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import { Activity, Mail, Truck, AlertTriangle, Eye, RefreshCw, CheckCircle, BarChart3, Route, MapPinned } from "lucide-react"
-import { CONDUCTOR_NOMBRES, VEHICULO_PLACAS, type Operation } from "@/lib/mock-data"
+import { Activity, Mail, Truck, AlertTriangle, Eye, RefreshCw, CheckCircle, BarChart3, Route, MapPinned, TrendingUp, FileWarning } from "lucide-react"
+import {
+  CONDUCTOR_NOMBRES,
+  DOCUMENTOS_MOCK,
+  VEHICULO_PLACAS,
+  calcularCostoPorKm,
+  calcularEstadoDocumento,
+  type Operation,
+} from "@/lib/mock-data"
 
 interface DashboardScreenProps {
   onNavigate: (screen: string, opId?: string) => void
@@ -73,6 +80,26 @@ export default function DashboardScreen({ onNavigate, operations }: DashboardScr
 
   const maxCount = Math.max(...vehiculosConteo.map((v) => v.count), 1)
 
+  const placasFiltradas = useMemo(
+    () => [...new Set(opsFiltradas.map((op) => op.placa))],
+    [opsFiltradas]
+  )
+
+  const costoPromedioPorKm = useMemo(() => {
+    const costos = placasFiltradas.map((placa) => calcularCostoPorKm(placa)).filter((c) => c > 0)
+    if (costos.length === 0) return 0
+    return Math.round(costos.reduce((sum, c) => sum + c, 0) / costos.length)
+  }, [placasFiltradas])
+
+  const ranking = useMemo(
+    () =>
+      placasFiltradas
+        .map((placa) => ({ placa, costoPorKm: calcularCostoPorKm(placa) }))
+        .filter((v) => v.costoPorKm > 0)
+        .sort((a, b) => a.costoPorKm - b.costoPorKm),
+    [placasFiltradas]
+  )
+
   const handleResend = (opId: string) => {
     setResendingId(opId)
     setTimeout(() => setResendingId(null), 1500)
@@ -81,6 +108,13 @@ export default function DashboardScreen({ onNavigate, operations }: DashboardScr
   const alertOp = operations.find((op) => op.hasConfirm)
   const enRuta = operations.filter((op) => op.estado === "En Ruta").length
   const alertasPendientes = operations.filter((op) => op.hasConfirm).length
+
+  const documentosPorVencer = useMemo(() => {
+    return DOCUMENTOS_MOCK.filter((doc) => {
+      const estado = calcularEstadoDocumento(doc.fechaFin)
+      return estado === "Por vencer" || estado === "Vencido"
+    })
+  }, [])
 
   return (
     <div className="flex flex-col gap-6 p-6">
@@ -188,12 +222,17 @@ export default function DashboardScreen({ onNavigate, operations }: DashboardScr
           </div>
         </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
           {[
             { icon: BarChart3, label: "Total viajes", value: String(totalViajes) },
             { icon: Route, label: "Km totales recorridos", value: kmTotales.toLocaleString("es-CL") },
             { icon: MapPinned, label: "Ruta más utilizada", value: rutaMasUsada, small: true },
             { icon: Truck, label: "Vehículo más utilizado", value: vehiculoMasUsado, mono: true },
+            {
+              icon: TrendingUp,
+              label: "Costo promedio por km",
+              value: costoPromedioPorKm > 0 ? `$${costoPromedioPorKm.toLocaleString("es-CL")}/km` : "—",
+            },
           ].map(({ icon: Icon, label, value, small, mono }) => (
             <div
               key={label}
@@ -234,7 +273,63 @@ export default function DashboardScreen({ onNavigate, operations }: DashboardScr
             ))}
           </div>
         )}
+
+        {ranking.length > 0 && (
+          <div className="flex flex-col gap-3 pt-1">
+            <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: "#9ca3af" }}>
+              Ranking de costo por kilómetro
+            </p>
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="border-b" style={{ borderColor: "#e5e7eb" }}>
+                  <th className="text-left py-2 font-semibold" style={{ color: "#9ca3af" }}>Vehículo</th>
+                  <th className="text-left py-2 font-semibold" style={{ color: "#9ca3af" }}>Costo/km</th>
+                  <th className="text-left py-2 font-semibold" style={{ color: "#9ca3af" }}>Eficiencia</th>
+                </tr>
+              </thead>
+              <tbody>
+                {ranking.map((v, i) => (
+                  <tr key={v.placa} className="border-b" style={{ borderColor: "#f3f4f6" }}>
+                    <td className="py-2 font-mono">{v.placa}</td>
+                    <td className="py-2">${v.costoPorKm.toLocaleString("es-CL")}/km</td>
+                    <td className="py-2">
+                      {i === 0 && <span style={{ color: "#16a34a" }}>Más eficiente</span>}
+                      {i === ranking.length - 1 && ranking.length > 1 && (
+                        <span style={{ color: "#dc2626" }}>Menos eficiente</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
+
+      {documentosPorVencer.length > 0 && (
+        <div
+          style={{
+            backgroundColor: "rgba(220,38,38,0.06)",
+            border: "1px solid rgba(220,38,38,0.2)",
+            borderRadius: "12px",
+            padding: "12px 16px",
+            display: "flex",
+            alignItems: "center",
+            gap: "12px",
+            marginBottom: "12px",
+          }}
+        >
+          <FileWarning className="w-4 h-4 flex-shrink-0" style={{ color: "#dc2626" }} />
+          <div>
+            <p className="text-sm font-medium" style={{ color: "#dc2626" }}>
+              {documentosPorVencer.length} documentos requieren atención
+            </p>
+            <p className="text-xs" style={{ color: "#6b7280" }}>
+              Permisos, revisiones técnicas o licencias por vencer en los próximos 30 días
+            </p>
+          </div>
+        </div>
+      )}
 
       {alertOp && (
         <div
