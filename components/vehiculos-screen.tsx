@@ -2,15 +2,25 @@
 
 import { useState } from "react"
 import { Plus, Pencil, Eye, X, Truck, CheckCircle2, Ban, RotateCcw } from "lucide-react"
-import type { EstadoVehiculo, Operation, VehiculoFlota } from "@/lib/mock-data"
+import {
+  DOCUMENTOS_MOCK,
+  calcularEstadoDocumento,
+  type DocumentoCentral,
+  type EstadoVehiculo,
+  type Operation,
+  type TipoVehiculo,
+  type VehiculoFlota,
+} from "@/lib/mock-data"
 
 interface VehiculosScreenProps {
   vehiculos: VehiculoFlota[]
   onUpdateVehiculos: (v: VehiculoFlota[]) => void
   operations: Operation[]
+  onNavigate: (screen: string, opId?: string) => void
 }
 
 interface VehiculoForm {
+  tipo: TipoVehiculo
   placa: string
   marca: string
   modelo: string
@@ -19,11 +29,49 @@ interface VehiculoForm {
 }
 
 const emptyForm: VehiculoForm = {
+  tipo: "Motorizado",
   placa: "",
   marca: "",
   modelo: "",
   anio: "",
   vin: "",
+}
+
+const alertaColors = {
+  verde: "#16a34a",
+  amarillo: "#ca8a04",
+  rojo: "#dc2626",
+  "sin-documentos": "#9ca3af",
+} as const
+
+const alertaLabels = {
+  verde: "Al día",
+  amarillo: "Por vencer",
+  rojo: "Vencido",
+  "sin-documentos": "Sin docs",
+} as const
+
+type AlertaDocumentos = keyof typeof alertaColors
+
+function getEstadoDocumentosVehiculo(
+  placa: string,
+  documentos: DocumentoCentral[]
+): AlertaDocumentos {
+  const docs = documentos.filter(
+    (d) => d.tipoEntidad === "Vehiculo" && d.entidadId === placa
+  )
+  if (docs.length === 0) return "sin-documentos"
+  const estados = docs.map((d) => calcularEstadoDocumento(d.fechaFin))
+  if (estados.some((e) => e === "Vencido")) return "rojo"
+  if (estados.some((e) => e === "Por vencer")) return "amarillo"
+  return "verde"
+}
+
+function tipoBadgeStyle(tipo: TipoVehiculo): { bg: string; color: string } {
+  if (tipo === "Motorizado") {
+    return { bg: "#111827", color: "#ffffff" }
+  }
+  return { bg: "#f3f4f6", color: "#111827" }
 }
 
 function estadoBadgeStyle(estado: EstadoVehiculo): { bg: string; color: string; border: string } {
@@ -49,8 +97,7 @@ function isFormValid(form: VehiculoForm): boolean {
     form.modelo.trim() !== "" &&
     !Number.isNaN(anio) &&
     anio >= 1990 &&
-    anio <= 2027 &&
-    form.vin.trim() !== ""
+    anio <= 2027
   )
 }
 
@@ -138,6 +185,26 @@ function VehiculoFormModal({
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-medium" style={{ color: "#6b7280" }}>
+              Tipo de vehículo <span style={{ color: "#dc2626" }}> *</span>
+            </label>
+            <div className="flex gap-4">
+              {(["Motorizado", "Remolque"] as TipoVehiculo[]).map((tipo) => (
+                <label key={tipo} className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="tipoVehiculo"
+                    value={tipo}
+                    checked={form.tipo === tipo}
+                    onChange={() => onChange({ ...form, tipo })}
+                    className="accent-black"
+                  />
+                  <span className="text-sm text-gray-900">{tipo}</span>
+                </label>
+              ))}
+            </div>
+          </div>
           <TextField
             label="Patente"
             value={form.placa}
@@ -166,10 +233,9 @@ function VehiculoFormModal({
           />
           <TextField
             label="VIN"
-            placeholder="9BSC4X2004B123456"
+            placeholder="Opcional"
             value={form.vin}
             onChange={(vin) => onChange({ ...form, vin })}
-            required
           />
 
           <div className="flex gap-3 pt-1">
@@ -204,6 +270,7 @@ export default function VehiculosScreen({
   vehiculos,
   onUpdateVehiculos,
   operations,
+  onNavigate,
 }: VehiculosScreenProps) {
   void operations
   const [showCreateModal, setShowCreateModal] = useState(false)
@@ -212,11 +279,16 @@ export default function VehiculosScreen({
   const [deactivatingId, setDeactivatingId] = useState<string | null>(null)
   const [createForm, setCreateForm] = useState<VehiculoForm>(emptyForm)
   const [editForm, setEditForm] = useState<VehiculoForm>(emptyForm)
+  const [filtroTipo, setFiltroTipo] = useState("todos")
+
+  const vehiculosFiltrados = vehiculos.filter(
+    (v) => filtroTipo === "todos" || v.tipo === filtroTipo
+  )
 
   const stats = {
-    total: vehiculos.length,
-    activos: vehiculos.filter((v) => v.estado === "Activo").length,
-    inactivos: vehiculos.filter((v) => v.estado === "Inactivo").length,
+    total: vehiculosFiltrados.length,
+    activos: vehiculosFiltrados.filter((v) => v.estado === "Activo").length,
+    inactivos: vehiculosFiltrados.filter((v) => v.estado === "Inactivo").length,
   }
 
   const openCreateModal = () => {
@@ -227,11 +299,12 @@ export default function VehiculosScreen({
   const openEditModal = (item: VehiculoFlota) => {
     setEditingItem(item)
     setEditForm({
+      tipo: item.tipo,
       placa: item.placa,
       marca: item.marca,
       modelo: item.modelo,
       anio: item.anio,
-      vin: item.vin,
+      vin: item.vin ?? "",
     })
   }
 
@@ -248,7 +321,8 @@ export default function VehiculosScreen({
         marca: createForm.marca.trim(),
         modelo: createForm.modelo.trim(),
         anio: createForm.anio.trim(),
-        vin: createForm.vin.trim(),
+        vin: createForm.vin.trim() || null,
+        tipo: createForm.tipo,
         estado: "Activo",
         operacionAsociada: null,
       },
@@ -269,7 +343,8 @@ export default function VehiculosScreen({
               marca: editForm.marca.trim(),
               modelo: editForm.modelo.trim(),
               anio: editForm.anio.trim(),
-              vin: editForm.vin.trim(),
+              vin: editForm.vin.trim() || null,
+              tipo: editForm.tipo,
             }
           : v
       )
@@ -340,6 +415,24 @@ export default function VehiculosScreen({
           ))}
         </div>
 
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+          <label className="text-xs font-medium" style={{ color: "#6b7280" }}>
+            Tipo
+          </label>
+          <select
+            value={filtroTipo}
+            onChange={(e) => setFiltroTipo(e.target.value)}
+            className="px-3 py-2.5 rounded-lg text-sm text-gray-900 outline-none transition-all cursor-pointer sm:max-w-xs"
+            style={{ backgroundColor: "#f9fafb", border: "1px solid #e5e7eb" }}
+            onFocus={(e) => (e.target.style.borderColor = "#000000")}
+            onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
+          >
+            <option value="todos">Todos los tipos</option>
+            <option value="Motorizado">Motorizado</option>
+            <option value="Remolque">Remolque</option>
+          </select>
+        </div>
+
         <div
           className="rounded-xl overflow-hidden"
           style={{ backgroundColor: "#ffffff", border: "1px solid #e5e7eb" }}
@@ -351,8 +444,17 @@ export default function VehiculosScreen({
             <table className="w-full">
               <thead>
                 <tr style={{ backgroundColor: "#f9fafb" }}>
-                  {["Patente", "Marca/Modelo", "Año", "VIN", "Operación Asociada", "Estado", "Acciones"].map(
-                    (h) => (
+                  {[
+                    "Patente",
+                    "Tipo",
+                    "Marca/Modelo",
+                    "Año",
+                    "VIN",
+                    "Operación Asociada",
+                    "Documentos",
+                    "Estado",
+                    "Acciones",
+                  ].map((h) => (
                       <th
                         key={h}
                         className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider"
@@ -365,8 +467,10 @@ export default function VehiculosScreen({
                 </tr>
               </thead>
               <tbody>
-                {vehiculos.map((v, i) => {
+                {vehiculosFiltrados.map((v, i) => {
                   const badge = estadoBadgeStyle(v.estado)
+                  const tipoBadge = tipoBadgeStyle(v.tipo)
+                  const alerta = getEstadoDocumentosVehiculo(v.placa, DOCUMENTOS_MOCK)
                   const isInactive = v.estado === "Inactivo"
                   return (
                     <tr
@@ -383,6 +487,14 @@ export default function VehiculosScreen({
                         <span className="text-sm font-mono font-semibold text-gray-900">{v.placa}</span>
                       </td>
                       <td className="px-5 py-3.5">
+                        <span
+                          className="px-2 py-0.5 rounded text-xs font-semibold"
+                          style={{ backgroundColor: tipoBadge.bg, color: tipoBadge.color }}
+                        >
+                          {v.tipo}
+                        </span>
+                      </td>
+                      <td className="px-5 py-3.5">
                         <span className="text-sm text-gray-900">
                           {v.marca} {v.modelo}
                         </span>
@@ -394,7 +506,7 @@ export default function VehiculosScreen({
                       </td>
                       <td className="px-5 py-3.5">
                         <span className="text-xs font-mono" style={{ color: "#6b7280" }}>
-                          {v.vin}
+                          {v.vin ?? "—"}
                         </span>
                       </td>
                       <td className="px-5 py-3.5">
@@ -407,6 +519,22 @@ export default function VehiculosScreen({
                             Sin asignar
                           </span>
                         )}
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-1.5">
+                          <div
+                            style={{
+                              width: "10px",
+                              height: "10px",
+                              borderRadius: "50%",
+                              backgroundColor: alertaColors[alerta],
+                              flexShrink: 0,
+                            }}
+                          />
+                          <span className="text-xs" style={{ color: alertaColors[alerta] }}>
+                            {alertaLabels[alerta]}
+                          </span>
+                        </div>
                       </td>
                       <td className="px-5 py-3.5">
                         <span
@@ -434,6 +562,21 @@ export default function VehiculosScreen({
                           >
                             <Eye className="w-3 h-3" />
                             Ver detalle
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => onNavigate("documentacion")}
+                            style={{
+                              backgroundColor: "rgba(37,99,235,0.08)",
+                              color: "#2563eb",
+                              border: "1px solid rgba(37,99,235,0.2)",
+                              borderRadius: "6px",
+                              padding: "4px 10px",
+                              fontSize: "12px",
+                              cursor: "pointer",
+                            }}
+                          >
+                            Ver docs
                           </button>
                           {v.estado === "Activo" ? (
                             <>
@@ -539,10 +682,11 @@ export default function VehiculosScreen({
             <div className="grid grid-cols-2 gap-3">
               {[
                 { label: "Patente", value: detailItem.placa, mono: true },
+                { label: "Tipo", value: detailItem.tipo },
                 { label: "Marca", value: detailItem.marca },
                 { label: "Modelo", value: detailItem.modelo },
                 { label: "Año", value: detailItem.anio, mono: true },
-                { label: "VIN", value: detailItem.vin, mono: true, span: 2 },
+                { label: "VIN", value: detailItem.vin ?? "—", mono: true, span: 2 },
               ].map(({ label, value, mono, span }) => (
                 <div key={label} className={span === 2 ? "col-span-2" : undefined}>
                   <span className="text-xs" style={{ color: "#9ca3af" }}>

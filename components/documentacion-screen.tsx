@@ -19,6 +19,7 @@ import {
   DOCUMENTOS_MOCK,
   VEHICULO_PLACAS,
   calcularEstadoDocumento,
+  calcularCostoMensualDocumentos,
   type DocumentoCentral,
   type EstadoDocumento,
   type TipoEntidad,
@@ -37,6 +38,7 @@ interface DocumentoForm {
   fechaUltimoControl: string
   fechaProximoControl: string
   archivoNombre: string
+  costo: string
 }
 
 const emptyForm: DocumentoForm = {
@@ -48,6 +50,15 @@ const emptyForm: DocumentoForm = {
   fechaUltimoControl: "",
   fechaProximoControl: "",
   archivoNombre: "",
+  costo: "",
+}
+
+function todayISO(): string {
+  return new Date().toISOString().split("T")[0]
+}
+
+function formatCosto(value: number): string {
+  return `$${value.toLocaleString("es-CL")}`
 }
 
 function formatFecha(fecha: string): string {
@@ -257,6 +268,13 @@ function DocumentoModal({
             value={form.fechaProximoControl}
             onChange={(fechaProximoControl) => onChange({ ...form, fechaProximoControl })}
           />
+          <TextField
+            label="Costo del documento"
+            type="number"
+            value={form.costo}
+            onChange={(costo) => onChange({ ...form, costo })}
+            placeholder="Ej: 85000"
+          />
 
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-medium" style={{ color: "#6b7280" }}>
@@ -313,6 +331,7 @@ function buildDocumentoFromForm(form: DocumentoForm, id: string): DocumentoCentr
     fechaUltimoControl: form.fechaUltimoControl || null,
     fechaProximoControl: form.fechaProximoControl || null,
     archivoNombre: form.archivoNombre || null,
+    costo: form.costo.trim() ? parseInt(form.costo, 10) : null,
   }
 }
 
@@ -326,6 +345,7 @@ function formFromDocumento(doc: DocumentoCentral): DocumentoForm {
     fechaUltimoControl: doc.fechaUltimoControl ?? "",
     fechaProximoControl: doc.fechaProximoControl ?? "",
     archivoNombre: doc.archivoNombre ?? "",
+    costo: doc.costo != null ? String(doc.costo) : "",
   }
 }
 
@@ -341,6 +361,14 @@ export default function DocumentacionScreen({ onNavigate }: DocumentacionScreenP
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [filtroTipo, setFiltroTipo] = useState("Todos")
   const [filtroEstado, setFiltroEstado] = useState("Todos")
+  const [showRenovarModal, setShowRenovarModal] = useState(false)
+  const [renovandoDoc, setRenovandoDoc] = useState<DocumentoCentral | null>(null)
+  const [renovarForm, setRenovarForm] = useState({
+    fechaInicio: "",
+    fechaFin: "",
+    costo: "",
+    archivoNombre: null as string | null,
+  })
 
   const documentosFiltrados = documentos.filter((doc) => {
     if (filtroTipo === "Vehiculos" && doc.tipoEntidad !== "Vehiculo") return false
@@ -357,6 +385,8 @@ export default function DocumentacionScreen({ onNavigate }: DocumentacionScreenP
     vigentes: documentosFiltrados.filter((d) => calcularEstadoDocumento(d.fechaFin) === "Vigente").length,
     porVencer: documentosFiltrados.filter((d) => calcularEstadoDocumento(d.fechaFin) === "Por vencer").length,
     vencidos: documentosFiltrados.filter((d) => calcularEstadoDocumento(d.fechaFin) === "Vencido").length,
+    costoTotal: documentosFiltrados.reduce((sum, d) => sum + (d.costo ?? 0), 0),
+    costoMensual: calcularCostoMensualDocumentos(documentosFiltrados),
   }
 
   const openCreateModal = () => {
@@ -367,6 +397,42 @@ export default function DocumentacionScreen({ onNavigate }: DocumentacionScreenP
   const openEditModal = (item: DocumentoCentral) => {
     setEditingItem(item)
     setEditForm(formFromDocumento(item))
+  }
+
+  const openRenovarModal = (doc: DocumentoCentral) => {
+    setRenovandoDoc(doc)
+    setRenovarForm({
+      fechaInicio: todayISO(),
+      fechaFin: "",
+      costo: "",
+      archivoNombre: null,
+    })
+    setShowRenovarModal(true)
+  }
+
+  const handleRenovar = () => {
+    if (!renovandoDoc) return
+    const costo = parseInt(renovarForm.costo, 10)
+    if (!renovarForm.fechaInicio || !renovarForm.fechaFin || Number.isNaN(costo)) return
+
+    const today = todayISO()
+    setDocumentos((prev) =>
+      prev.map((d) =>
+        d.id === renovandoDoc.id
+          ? {
+              ...d,
+              fechaInicio: renovarForm.fechaInicio,
+              fechaFin: renovarForm.fechaFin,
+              fechaUltimoControl: today,
+              fechaProximoControl: renovarForm.fechaFin,
+              costo,
+              archivoNombre: renovarForm.archivoNombre ?? d.archivoNombre,
+            }
+          : d
+      )
+    )
+    setShowRenovarModal(false)
+    setRenovandoDoc(null)
   }
 
   const handleCreate = () => {
@@ -445,32 +511,51 @@ export default function DocumentacionScreen({ onNavigate }: DocumentacionScreenP
           </div>
         </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
           {[
-            { icon: FileText, label: "Total documentos", value: stats.total, color: "#111827", bg: "rgba(0,0,0,0.06)" },
-            { icon: CheckCircle2, label: "Vigentes", value: stats.vigentes, color: "#16a34a", bg: "rgba(0,0,0,0.06)" },
-            { icon: AlertTriangle, label: "Por vencer", value: stats.porVencer, color: "#ca8a04", bg: "rgba(234,179,8,0.1)" },
-            { icon: XCircle, label: "Vencidos", value: stats.vencidos, color: "#dc2626", bg: "rgba(239,68,68,0.08)" },
-          ].map(({ icon: Icon, label, value, color, bg }) => (
-            <div
-              key={label}
-              className="rounded-xl p-4 flex items-center gap-4"
-              style={{ backgroundColor: "#ffffff", border: "1px solid #e5e7eb" }}
-            >
+            { icon: FileText, label: "Total documentos", value: String(stats.total), color: "#111827", bg: "rgba(0,0,0,0.06)", dark: false },
+            { icon: CheckCircle2, label: "Vigentes", value: String(stats.vigentes), color: "#16a34a", bg: "rgba(0,0,0,0.06)", dark: false },
+            { icon: AlertTriangle, label: "Por vencer", value: String(stats.porVencer), color: "#ca8a04", bg: "rgba(234,179,8,0.1)", dark: false },
+            { icon: XCircle, label: "Vencidos", value: String(stats.vencidos), color: "#dc2626", bg: "rgba(239,68,68,0.08)", dark: false },
+            { label: "Costo total documentación", value: formatCosto(stats.costoTotal), dark: true, darkBg: "#000000" },
+            { label: "Costo mensual estimado", value: formatCosto(stats.costoMensual), dark: true, darkBg: "#374151" },
+          ].map((card) => {
+            if (card.dark) {
+              return (
+                <div
+                  key={card.label}
+                  className="rounded-xl p-4"
+                  style={{ backgroundColor: card.darkBg, color: "#ffffff" }}
+                >
+                  <span className="text-lg font-bold">{card.value}</span>
+                  <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.7)" }}>
+                    {card.label}
+                  </p>
+                </div>
+              )
+            }
+            const Icon = card.icon!
+            return (
               <div
-                className="flex items-center justify-center w-10 h-10 rounded-lg flex-shrink-0"
-                style={{ backgroundColor: bg }}
+                key={card.label}
+                className="rounded-xl p-4 flex items-center gap-4"
+                style={{ backgroundColor: "#ffffff", border: "1px solid #e5e7eb" }}
               >
-                <Icon className="w-5 h-5" style={{ color }} />
+                <div
+                  className="flex items-center justify-center w-10 h-10 rounded-lg flex-shrink-0"
+                  style={{ backgroundColor: card.bg }}
+                >
+                  <Icon className="w-5 h-5" style={{ color: card.color }} />
+                </div>
+                <div>
+                  <span className="text-2xl font-bold text-gray-900">{card.value}</span>
+                  <p className="text-xs" style={{ color: "#9ca3af" }}>
+                    {card.label}
+                  </p>
+                </div>
               </div>
-              <div>
-                <span className="text-2xl font-bold text-gray-900">{value}</span>
-                <p className="text-xs" style={{ color: "#9ca3af" }}>
-                  {label}
-                </p>
-              </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
 
         <div
@@ -491,6 +576,7 @@ export default function DocumentacionScreen({ onNavigate }: DocumentacionScreenP
                     "Fecha Inicio",
                     "Fecha Fin",
                     "Próximo Control",
+                    "Costo",
                     "Estado",
                     "Archivo",
                     "Acciones",
@@ -508,7 +594,7 @@ export default function DocumentacionScreen({ onNavigate }: DocumentacionScreenP
               <tbody>
                 {documentosFiltrados.length === 0 ? (
                   <tr>
-                    <td colSpan={9} className="px-5 py-8 text-center text-sm" style={{ color: "#9ca3af" }}>
+                    <td colSpan={10} className="px-5 py-8 text-center text-sm" style={{ color: "#9ca3af" }}>
                       No hay documentos para los filtros seleccionados
                     </td>
                   </tr>
@@ -556,6 +642,11 @@ export default function DocumentacionScreen({ onNavigate }: DocumentacionScreenP
                         <td className="px-5 py-3.5">
                           <span className="text-sm whitespace-nowrap" style={{ color: "#6b7280" }}>
                             {doc.fechaProximoControl ? formatFecha(doc.fechaProximoControl) : "—"}
+                          </span>
+                        </td>
+                        <td className="px-5 py-3.5">
+                          <span className="text-sm whitespace-nowrap" style={{ color: "#374151" }}>
+                            {doc.costo != null ? formatCosto(doc.costo) : "—"}
                           </span>
                         </td>
                         <td className="px-5 py-3.5">
@@ -618,7 +709,24 @@ export default function DocumentacionScreen({ onNavigate }: DocumentacionScreenP
                               </div>
                             </div>
                           ) : (
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              {estado === "Vencido" && (
+                                <button
+                                  type="button"
+                                  onClick={() => openRenovarModal(doc)}
+                                  style={{
+                                    backgroundColor: "rgba(220,38,38,0.08)",
+                                    color: "#dc2626",
+                                    border: "1px solid rgba(220,38,38,0.2)",
+                                    borderRadius: "6px",
+                                    padding: "4px 10px",
+                                    fontSize: "12px",
+                                    cursor: "pointer",
+                                  }}
+                                >
+                                  Renovar
+                                </button>
+                              )}
                               <button
                                 type="button"
                                 onClick={() => openEditModal(doc)}
@@ -678,6 +786,127 @@ export default function DocumentacionScreen({ onNavigate }: DocumentacionScreenP
           onSave={handleEdit}
           saveLabel="Guardar cambios"
         />
+      )}
+
+      {showRenovarModal && renovandoDoc && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+          onClick={() => {
+            setShowRenovarModal(false)
+            setRenovandoDoc(null)
+          }}
+        >
+          <div
+            className="w-full max-w-md rounded-2xl p-6 flex flex-col gap-4"
+            style={{ backgroundColor: "#ffffff", border: "1px solid #e5e7eb" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-base font-bold text-gray-900">
+                  Renovar — {renovandoDoc.tipoDocumento}
+                </h2>
+                <p className="text-xs mt-0.5" style={{ color: "#6b7280" }}>
+                  {renovandoDoc.entidadNombre}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowRenovarModal(false)
+                  setRenovandoDoc(null)
+                }}
+                className="p-1.5 rounded-lg transition-all hover:opacity-80"
+                style={{ color: "#9ca3af" }}
+                aria-label="Cerrar"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault()
+                handleRenovar()
+              }}
+              className="flex flex-col gap-4"
+            >
+              <TextField
+                label="Nueva fecha inicio"
+                type="date"
+                value={renovarForm.fechaInicio}
+                onChange={(fechaInicio) => setRenovarForm((f) => ({ ...f, fechaInicio }))}
+                required
+              />
+              <TextField
+                label="Nueva fecha fin"
+                type="date"
+                value={renovarForm.fechaFin}
+                onChange={(fechaFin) => setRenovarForm((f) => ({ ...f, fechaFin }))}
+                required
+              />
+              <TextField
+                label="Costo de renovación"
+                type="number"
+                value={renovarForm.costo}
+                onChange={(costo) => setRenovarForm((f) => ({ ...f, costo }))}
+                placeholder="Ej: 85000"
+                required
+              />
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-medium" style={{ color: "#6b7280" }}>
+                  Cargar nuevo archivo
+                </label>
+                <label
+                  className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm cursor-pointer transition-all"
+                  style={{ backgroundColor: "#f9fafb", border: "1px solid #e5e7eb", color: "#374151" }}
+                >
+                  <Upload className="w-4 h-4 flex-shrink-0" style={{ color: "#6b7280" }} />
+                  <span className="truncate">
+                    {renovarForm.archivoNombre || "Seleccionar archivo..."}
+                  </span>
+                  <input
+                    type="file"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0]
+                      setRenovarForm((f) => ({
+                        ...f,
+                        archivoNombre: file?.name ?? null,
+                      }))
+                    }}
+                  />
+                </label>
+              </div>
+
+              <div className="flex gap-3 pt-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowRenovarModal(false)
+                    setRenovandoDoc(null)
+                  }}
+                  className="flex-1 py-2.5 rounded-xl text-sm font-medium transition-all hover:opacity-80"
+                  style={{
+                    backgroundColor: "#f3f4f6",
+                    color: "#6b7280",
+                    border: "1px solid #e5e7eb",
+                  }}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all hover:opacity-90 text-white"
+                  style={{ backgroundColor: "#000000", color: "#ffffff" }}
+                >
+                  Confirmar renovación
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </>
   )

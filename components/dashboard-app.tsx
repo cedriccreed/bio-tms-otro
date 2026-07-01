@@ -82,6 +82,7 @@ export default function DashboardApp({ onLogout }: DashboardAppProps) {
             vehiculos={vehiculosConOperacion}
             onUpdateVehiculos={setVehiculos}
             operations={operations}
+            onNavigate={handleNavigate}
           />
         )
       case "conductores":

@@ -85,6 +85,7 @@ export interface DocumentoCentral {
   fechaUltimoControl: string | null
   fechaProximoControl: string | null
   archivoNombre: string | null
+  costo: number | null
 }
 
 export function calcularEstadoDocumento(fechaFin: string): EstadoDocumento {
@@ -287,50 +288,157 @@ export const OPERATIONS_MOCK: Operation[] = [
   },
 ]
 
-export const MANTENIMIENTOS_MOCK = [
+export type EstadoMantenimiento = "Pendiente" | "En proceso" | "Completado"
+export type TipoTaller = "Mecánico propio" | "Taller externo"
+
+export interface HistorialMantenimiento {
+  id: string
+  fecha: string
+  descripcion: string
+  estado: EstadoMantenimiento
+  responsable: string
+}
+
+export interface Mantenimiento {
+  id: string
+  fecha: string
+  vehiculo: string
+  tipoServicio: string
+  costo: number
+  estado: EstadoMantenimiento
+  tipoTaller: TipoTaller
+  responsable: string
+  historial: HistorialMantenimiento[]
+}
+
+export const MANTENIMIENTOS_MOCK: Mantenimiento[] = [
   {
     id: "MNT-001",
-    tipoServicio: "Cambio de aceite y filtros",
     fecha: "2026-06-25",
     vehiculo: "BJRT45",
+    tipoServicio: "Cambio de aceite y filtros",
     costo: 85000,
-    estado: "Pendiente" as const,
+    estado: "Completado",
+    tipoTaller: "Taller externo",
+    responsable: "Taller Mecánico San Antonio",
+    historial: [
+      {
+        id: "H001-1",
+        fecha: "2026-06-25 09:00",
+        descripcion: "Ingreso del vehículo al taller",
+        estado: "En proceso",
+        responsable: "Taller Mecánico San Antonio",
+      },
+      {
+        id: "H001-2",
+        fecha: "2026-06-25 14:00",
+        descripcion: "Cambio de aceite y filtros completado",
+        estado: "Completado",
+        responsable: "Taller Mecánico San Antonio",
+      },
+    ],
   },
   {
     id: "MNT-002",
-    tipoServicio: "Revisión técnica anual",
     fecha: "2026-06-22",
     vehiculo: "FKWM23",
+    tipoServicio: "Revisión técnica anual",
     costo: 120000,
-    estado: "En proceso" as const,
+    estado: "Completado",
+    tipoTaller: "Taller externo",
+    responsable: "Revisiones Técnicas Chile",
+    historial: [
+      {
+        id: "H002-1",
+        fecha: "2026-06-22 08:00",
+        descripcion: "Ingreso para revisión técnica anual",
+        estado: "En proceso",
+        responsable: "Revisiones Técnicas Chile",
+      },
+      {
+        id: "H002-2",
+        fecha: "2026-06-22 11:00",
+        descripcion: "Revisión aprobada sin observaciones",
+        estado: "Completado",
+        responsable: "Revisiones Técnicas Chile",
+      },
+    ],
   },
   {
     id: "MNT-003",
-    tipoServicio: "Cambio de neumáticos traseros",
-    fecha: "2026-06-20",
+    fecha: "2026-06-28",
     vehiculo: "GHRP67",
+    tipoServicio: "Cambio de neumáticos traseros",
     costo: 480000,
-    estado: "Completado" as const,
+    estado: "En proceso",
+    tipoTaller: "Mecánico propio",
+    responsable: "Juan Saavedra (Mecánico)",
+    historial: [
+      {
+        id: "H003-1",
+        fecha: "2026-06-28 07:30",
+        descripcion: "Diagnóstico: desgaste crítico en neumáticos traseros",
+        estado: "Pendiente",
+        responsable: "Juan Saavedra (Mecánico)",
+      },
+      {
+        id: "H003-2",
+        fecha: "2026-06-28 10:00",
+        descripcion: "Inicio de reemplazo de neumáticos",
+        estado: "En proceso",
+        responsable: "Juan Saavedra (Mecánico)",
+      },
+    ],
   },
   {
     id: "MNT-004",
-    tipoServicio: "Revisión sistema de frenos",
-    fecha: "2026-06-28",
+    fecha: "2026-07-05",
     vehiculo: "CKND89",
+    tipoServicio: "Revisión sistema de frenos",
     costo: 95000,
-    estado: "Pendiente" as const,
+    estado: "Pendiente",
+    tipoTaller: "Taller externo",
+    responsable: "Frenos y Suspensión Ltda.",
+    historial: [
+      {
+        id: "H004-1",
+        fecha: "2026-07-01 09:00",
+        descripcion: "Solicitud de revisión de frenos creada",
+        estado: "Pendiente",
+        responsable: "Supervisor flota",
+      },
+    ],
   },
   {
     id: "MNT-005",
-    tipoServicio: "Mantención preventiva 100.000 km",
     fecha: "2026-06-18",
     vehiculo: "HLVT34",
-    costo: 650000,
-    estado: "Completado" as const,
+    tipoServicio: "Mantención preventiva 100.000 km",
+    costo: 250000,
+    estado: "Completado",
+    tipoTaller: "Mecánico propio",
+    responsable: "Pedro Riffo (Mecánico)",
+    historial: [
+      {
+        id: "H005-1",
+        fecha: "2026-06-18 08:00",
+        descripcion: "Inicio de mantención preventiva",
+        estado: "En proceso",
+        responsable: "Pedro Riffo (Mecánico)",
+      },
+      {
+        id: "H005-2",
+        fecha: "2026-06-18 17:00",
+        descripcion: "Mantención completada. Sin observaciones.",
+        estado: "Completado",
+        responsable: "Pedro Riffo (Mecánico)",
+      },
+    ],
   },
 ]
 
 export type EstadoVehiculo = "Activo" | "Inactivo"
+export type TipoVehiculo = "Motorizado" | "Remolque"
 
 export interface VehiculoFlota {
   id: string
@@ -338,7 +446,8 @@ export interface VehiculoFlota {
   marca: string
   modelo: string
   anio: string
-  vin: string
+  vin: string | null
+  tipo: TipoVehiculo
   estado: EstadoVehiculo
   operacionAsociada: string | null
 }
@@ -351,6 +460,7 @@ export const VEHICULOS_FLOTA_MOCK: VehiculoFlota[] = [
     modelo: "R450",
     anio: "2021",
     vin: "9BSC4X2004B123456",
+    tipo: "Motorizado",
     estado: "Activo",
     operacionAsociada: null,
   },
@@ -361,6 +471,7 @@ export const VEHICULOS_FLOTA_MOCK: VehiculoFlota[] = [
     modelo: "FH500",
     anio: "2020",
     vin: "9BVL4X2004B234567",
+    tipo: "Motorizado",
     estado: "Activo",
     operacionAsociada: null,
   },
@@ -371,6 +482,7 @@ export const VEHICULOS_FLOTA_MOCK: VehiculoFlota[] = [
     modelo: "Actros 2651",
     anio: "2022",
     vin: "9BMB4X2004B345678",
+    tipo: "Motorizado",
     estado: "Activo",
     operacionAsociada: null,
   },
@@ -381,6 +493,7 @@ export const VEHICULOS_FLOTA_MOCK: VehiculoFlota[] = [
     modelo: "T680",
     anio: "2019",
     vin: "9BKW4X2004B456789",
+    tipo: "Remolque",
     estado: "Activo",
     operacionAsociada: null,
   },
@@ -391,6 +504,7 @@ export const VEHICULOS_FLOTA_MOCK: VehiculoFlota[] = [
     modelo: "R500",
     anio: "2023",
     vin: "9BSC4X2004B567890",
+    tipo: "Remolque",
     estado: "Activo",
     operacionAsociada: null,
   },
@@ -408,6 +522,7 @@ export const DOCUMENTOS_MOCK: DocumentoCentral[] = [
     fechaUltimoControl: "2026-03-15",
     fechaProximoControl: "2027-03-15",
     archivoNombre: "permiso_bjrt45.pdf",
+    costo: 85000,
   },
   {
     id: "DOC-002",
@@ -420,6 +535,7 @@ export const DOCUMENTOS_MOCK: DocumentoCentral[] = [
     fechaUltimoControl: "2026-01-10",
     fechaProximoControl: "2026-07-10",
     archivoNombre: "revision_bjrt45.pdf",
+    costo: 45000,
   },
   {
     id: "DOC-003",
@@ -432,6 +548,7 @@ export const DOCUMENTOS_MOCK: DocumentoCentral[] = [
     fechaUltimoControl: null,
     fechaProximoControl: null,
     archivoNombre: "soap_fkwm23.pdf",
+    costo: 32000,
   },
   {
     id: "DOC-004",
@@ -444,6 +561,7 @@ export const DOCUMENTOS_MOCK: DocumentoCentral[] = [
     fechaUltimoControl: "2025-09-30",
     fechaProximoControl: "2026-09-30",
     archivoNombre: "revision_ghrp67.pdf",
+    costo: 45000,
   },
   {
     id: "DOC-005",
@@ -456,6 +574,7 @@ export const DOCUMENTOS_MOCK: DocumentoCentral[] = [
     fechaUltimoControl: null,
     fechaProximoControl: null,
     archivoNombre: "permiso_cknd89.pdf",
+    costo: 85000,
   },
   {
     id: "DOC-006",
@@ -468,6 +587,7 @@ export const DOCUMENTOS_MOCK: DocumentoCentral[] = [
     fechaUltimoControl: null,
     fechaProximoControl: null,
     archivoNombre: "licencia_c001.pdf",
+    costo: 12000,
   },
   {
     id: "DOC-007",
@@ -480,6 +600,7 @@ export const DOCUMENTOS_MOCK: DocumentoCentral[] = [
     fechaUltimoControl: null,
     fechaProximoControl: null,
     archivoNombre: "licencia_c002.pdf",
+    costo: 12000,
   },
   {
     id: "DOC-008",
@@ -492,6 +613,7 @@ export const DOCUMENTOS_MOCK: DocumentoCentral[] = [
     fechaUltimoControl: null,
     fechaProximoControl: null,
     archivoNombre: "antecedentes_c003.pdf",
+    costo: 5000,
   },
   {
     id: "DOC-009",
@@ -504,6 +626,7 @@ export const DOCUMENTOS_MOCK: DocumentoCentral[] = [
     fechaUltimoControl: null,
     fechaProximoControl: null,
     archivoNombre: "licencia_c004.pdf",
+    costo: 12000,
   },
   {
     id: "DOC-010",
@@ -516,8 +639,48 @@ export const DOCUMENTOS_MOCK: DocumentoCentral[] = [
     fechaUltimoControl: null,
     fechaProximoControl: null,
     archivoNombre: "soap_hlvt34.pdf",
+    costo: 32000,
+  },
+  {
+    id: "DOC-011",
+    tipoEntidad: "Vehiculo",
+    entidadId: "CKND89",
+    entidadNombre: "CKND89",
+    tipoDocumento: "Revisión técnica",
+    fechaInicio: "2025-01-10",
+    fechaFin: "2025-07-10",
+    fechaUltimoControl: "2025-01-10",
+    fechaProximoControl: "2025-07-10",
+    costo: 45000,
+    archivoNombre: "revision_cknd89.pdf",
+  },
+  {
+    id: "DOC-012",
+    tipoEntidad: "Conductor",
+    entidadId: "C002",
+    entidadNombre: "Pedro Muñoz Soto",
+    tipoDocumento: "Examen psicotécnico",
+    fechaInicio: "2024-06-01",
+    fechaFin: "2025-06-01",
+    fechaUltimoControl: "2024-06-01",
+    fechaProximoControl: "2025-06-01",
+    costo: 25000,
+    archivoNombre: "psicotecnico_c002.pdf",
   },
 ]
+
+export function calcularCostoMensualDocumentos(documentos: DocumentoCentral[]): number {
+  return documentos.reduce((total, doc) => {
+    if (!doc.costo) return total
+    const inicio = new Date(doc.fechaInicio)
+    const fin = new Date(doc.fechaFin)
+    const meses = Math.max(
+      1,
+      Math.ceil((fin.getTime() - inicio.getTime()) / (1000 * 60 * 60 * 24 * 30))
+    )
+    return total + Math.round(doc.costo / meses)
+  }, 0)
+}
 
 export type EstadoSeguimiento = "En ruta" | "Detenido" | "Apagado"
 
