@@ -13,14 +13,14 @@ interface SidebarProps {
 
 const navItems = [
   { id: "dashboard" as Screen, label: "Dashboard", icon: LayoutDashboard },
+  { id: "nueva" as Screen, label: "Nueva Operación", icon: Plus },
   { id: "operaciones" as Screen, label: "Operaciones", icon: ClipboardList },
   { id: "seguimiento" as Screen, label: "Seguimiento", icon: MapPin },
   { id: "vehiculos" as Screen, label: "Vehículos", icon: Truck },
   { id: "conductores" as Screen, label: "Conductores", icon: Users },
-  { id: "documentacion" as Screen, label: "Documentación", icon: FileText },
   { id: "mantenimientos" as Screen, label: "Mantenimientos", icon: Wrench },
   { id: "combustible" as Screen, label: "Combustible", icon: Fuel },
-  { id: "nueva" as Screen, label: "Nueva Operación", icon: Plus },
+  { id: "documentacion" as Screen, label: "Documentación", icon: FileText },
   { id: "configuracion" as Screen, label: "Configuración", icon: Settings },
 ]
 

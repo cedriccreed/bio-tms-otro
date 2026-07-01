@@ -53,6 +53,7 @@ interface EditForm {
   conductor: string
   estado: Estado
   estadoFacturacion: EstadoFacturacion
+  horaDescarga: string
 }
 
 function facturacionBadgeStyle(
@@ -116,6 +117,7 @@ export default function OperacionesScreen({
     conductor: CONDUCTOR_NOMBRES[0],
     estado: ESTADOS[0],
     estadoFacturacion: "En curso",
+    horaDescarga: "",
   })
 
   const handleResend = (opId: string) => {
@@ -130,6 +132,7 @@ export default function OperacionesScreen({
       conductor: op.conductor,
       estado: op.estado,
       estadoFacturacion: op.estadoFacturacion,
+      horaDescarga: op.horaInicioDescarga ?? "",
     })
   }
 
@@ -200,6 +203,7 @@ export default function OperacionesScreen({
               conductor: editForm.conductor,
               estado: editForm.estado,
               estadoFacturacion: editForm.estadoFacturacion,
+              horaInicioDescarga: editForm.horaDescarga || undefined,
               status: editForm.estado,
               ...styles,
               hasConfirm: op.hasConfirm,
@@ -483,6 +487,30 @@ export default function OperacionesScreen({
               onChange={(estado) => setEditForm((f) => ({ ...f, estado: estado as Estado }))}
               options={ESTADOS}
             />
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-medium" style={{ color: "#374151" }}>
+                Hora de descarga
+              </label>
+              <p className="text-xs mb-1" style={{ color: "#9ca3af" }}>
+                Se registra cuando el camión llega a destino
+              </p>
+              <input
+                type="time"
+                value={editForm.horaDescarga}
+                onChange={(e) =>
+                  setEditForm((f) => ({ ...f, horaDescarga: e.target.value }))
+                }
+                style={{
+                  padding: "8px 12px",
+                  borderRadius: "8px",
+                  border: "1px solid #e5e7eb",
+                  backgroundColor: "#f9fafb",
+                  fontSize: "14px",
+                  color: "#111827",
+                  width: "100%",
+                }}
+              />
+            </div>
             <SelectField
               label="Estado de facturación"
               value={editForm.estadoFacturacion}

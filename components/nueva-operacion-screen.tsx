@@ -231,7 +231,6 @@ export default function NuevaOperacionScreen({
   const [origen, setOrigen] = useState("")
   const [destino, setDestino] = useState("")
   const [horaCarga, setHoraCarga] = useState("")
-  const [horaDescarga, setHoraDescarga] = useState("")
   const [vehiculo, setVehiculo] = useState("")
   const [conductor, setConductor] = useState("")
   const [guiaDespacho, setGuiaDespacho] = useState("")
@@ -250,7 +249,6 @@ export default function NuevaOperacionScreen({
     destino !== "" &&
     origen !== destino &&
     horaCarga !== "" &&
-    horaDescarga !== "" &&
     vehiculo !== "" &&
     conductor !== "" &&
     guiaDespacho.trim() !== "" &&
@@ -274,7 +272,6 @@ export default function NuevaOperacionScreen({
       lastEmail: "Sin historial",
       hasConfirm: false,
       horaInicioCarga: horaCarga,
-      horaInicioDescarga: horaDescarga,
       guiaDespacho: guiaDespacho.trim(),
       tipoCarga: tipoCarga.trim(),
       origen,
@@ -351,12 +348,6 @@ export default function NuevaOperacionScreen({
               label="Hora inicio de carga"
               value={horaCarga}
               onChange={setHoraCarga}
-              required
-            />
-            <TimeField
-              label="Hora inicio de descarga"
-              value={horaDescarga}
-              onChange={setHoraDescarga}
               required
             />
           </div>
