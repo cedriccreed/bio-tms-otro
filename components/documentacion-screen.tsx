@@ -16,7 +16,6 @@ import {
 import {
   CONDUCTORES_INICIALES,
   CONDUCTOR_NOMBRES,
-  DOCUMENTOS_MOCK,
   VEHICULO_PLACAS,
   calcularEstadoDocumento,
   calcularCostoMensualDocumentos,
@@ -27,6 +26,8 @@ import {
 
 interface DocumentacionScreenProps {
   onNavigate: (screen: string, opId?: string) => void
+  documentos: DocumentoCentral[]
+  onUpdateDocumentos: (docs: DocumentoCentral[]) => void
 }
 
 interface DocumentoForm {
@@ -349,11 +350,12 @@ function formFromDocumento(doc: DocumentoCentral): DocumentoForm {
   }
 }
 
-export default function DocumentacionScreen({ onNavigate }: DocumentacionScreenProps) {
+export default function DocumentacionScreen({
+  onNavigate,
+  documentos,
+  onUpdateDocumentos,
+}: DocumentacionScreenProps) {
   void onNavigate
-  const [documentos, setDocumentos] = useState<DocumentoCentral[]>(
-    DOCUMENTOS_MOCK.map((d) => ({ ...d }))
-  )
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [editingItem, setEditingItem] = useState<DocumentoCentral | null>(null)
   const [createForm, setCreateForm] = useState<DocumentoForm>(emptyForm)
@@ -416,8 +418,8 @@ export default function DocumentacionScreen({ onNavigate }: DocumentacionScreenP
     if (!renovarForm.fechaInicio || !renovarForm.fechaFin || Number.isNaN(costo)) return
 
     const today = todayISO()
-    setDocumentos((prev) =>
-      prev.map((d) =>
+    onUpdateDocumentos(
+      documentos.map((d) =>
         d.id === renovandoDoc.id
           ? {
               ...d,
@@ -438,7 +440,7 @@ export default function DocumentacionScreen({ onNavigate }: DocumentacionScreenP
   const handleCreate = () => {
     const doc = buildDocumentoFromForm(createForm, nextDocumentoId(documentos))
     if (!doc) return
-    setDocumentos((prev) => [...prev, doc])
+    onUpdateDocumentos([...documentos, doc])
     setShowCreateModal(false)
     setCreateForm({ ...emptyForm })
   }
@@ -447,12 +449,12 @@ export default function DocumentacionScreen({ onNavigate }: DocumentacionScreenP
     if (!editingItem) return
     const doc = buildDocumentoFromForm(editForm, editingItem.id)
     if (!doc) return
-    setDocumentos((prev) => prev.map((d) => (d.id === editingItem.id ? doc : d)))
+    onUpdateDocumentos(documentos.map((d) => (d.id === editingItem.id ? doc : d)))
     setEditingItem(null)
   }
 
   const handleDelete = (id: string) => {
-    setDocumentos((prev) => prev.filter((d) => d.id !== id))
+    onUpdateDocumentos(documentos.filter((d) => d.id !== id))
     setDeletingId(null)
   }
 

@@ -1,19 +1,20 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import { Activity, Mail, Truck, AlertTriangle, Eye, RefreshCw, CheckCircle, BarChart3, Route, MapPinned, TrendingUp, FileWarning } from "lucide-react"
+import { Activity, Truck, AlertTriangle, Eye, RefreshCw, CheckCircle, BarChart3, Route, MapPinned, TrendingUp, FileWarning } from "lucide-react"
 import {
   CONDUCTOR_NOMBRES,
-  DOCUMENTOS_MOCK,
   VEHICULO_PLACAS,
   calcularCostoPorKm,
   calcularEstadoDocumento,
+  type DocumentoCentral,
   type Operation,
 } from "@/lib/mock-data"
 
 interface DashboardScreenProps {
   onNavigate: (screen: string, opId?: string) => void
   operations: Operation[]
+  documentos: DocumentoCentral[]
 }
 
 const dotColors: Record<string, string> = {
@@ -41,7 +42,7 @@ function mostFrequent(items: Operation[], key: "ruta" | "placa"): string {
   return best
 }
 
-export default function DashboardScreen({ onNavigate, operations }: DashboardScreenProps) {
+export default function DashboardScreen({ onNavigate, operations, documentos }: DashboardScreenProps) {
   const [resendingId, setResendingId] = useState<string | null>(null)
   const [filtroVehiculo, setFiltroVehiculo] = useState("Todos")
   const [filtroConductor, setFiltroConductor] = useState("Todos")
@@ -110,11 +111,11 @@ export default function DashboardScreen({ onNavigate, operations }: DashboardScr
   const alertasPendientes = operations.filter((op) => op.hasConfirm).length
 
   const documentosPorVencer = useMemo(() => {
-    return DOCUMENTOS_MOCK.filter((doc) => {
+    return documentos.filter((doc) => {
       const estado = calcularEstadoDocumento(doc.fechaFin)
       return estado === "Por vencer" || estado === "Vencido"
     })
-  }, [])
+  }, [documentos])
 
   return (
     <div className="flex flex-col gap-6 p-6">
@@ -126,7 +127,7 @@ export default function DashboardScreen({ onNavigate, operations }: DashboardScr
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           { icon: Activity, label: "Operaciones Activas", value: String(operations.length), color: "#16a34a", bg: "rgba(0,0,0,0.06)" },
-          { icon: Mail, label: "Emails Enviados Hoy", value: "8", color: "#2563eb", bg: "rgba(59,130,246,0.1)" },
+          { icon: CheckCircle, label: "Operaciones completadas", value: String(operations.filter((o) => o.estado === "Entregado").length), color: "#2563eb", bg: "rgba(59,130,246,0.1)" },
           { icon: Truck, label: "Camiones En Ruta", value: String(enRuta), color: "#ca8a04", bg: "rgba(234,179,8,0.1)" },
           { icon: AlertTriangle, label: "Alertas Pendientes", value: String(alertasPendientes), color: "#dc2626", bg: "rgba(239,68,68,0.1)", badge: alertasPendientes > 0 },
         ].map(({ icon: Icon, label, value, color, bg, badge }) => (
@@ -307,7 +308,11 @@ export default function DashboardScreen({ onNavigate, operations }: DashboardScr
       </div>
 
       {documentosPorVencer.length > 0 && (
-        <div
+        <button
+          type="button"
+          title="Ver documentos"
+          onClick={() => onNavigate("documentacion")}
+          className="w-full text-left transition-all hover:opacity-90"
           style={{
             backgroundColor: "rgba(220,38,38,0.06)",
             border: "1px solid rgba(220,38,38,0.2)",
@@ -317,6 +322,7 @@ export default function DashboardScreen({ onNavigate, operations }: DashboardScr
             alignItems: "center",
             gap: "12px",
             marginBottom: "12px",
+            cursor: "pointer",
           }}
         >
           <FileWarning className="w-4 h-4 flex-shrink-0" style={{ color: "#dc2626" }} />
@@ -328,7 +334,7 @@ export default function DashboardScreen({ onNavigate, operations }: DashboardScr
               Permisos, revisiones técnicas o licencias por vencer en los próximos 30 días
             </p>
           </div>
-        </div>
+        </button>
       )}
 
       {alertOp && (

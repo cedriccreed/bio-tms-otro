@@ -2,7 +2,17 @@
 
 import { useMemo, useState } from "react"
 import { Bell } from "lucide-react"
-import { OPERATIONS_MOCK, VEHICULOS_FLOTA_MOCK, type Operation, type VehiculoFlota } from "@/lib/mock-data"
+import {
+  CONDUCTORES_INICIALES,
+  DOCUMENTOS_MOCK,
+  OPERATIONS_MOCK,
+  VEHICULOS_FLOTA_MOCK,
+  calcularEstadoDocumento,
+  type ConductorFlota,
+  type DocumentoCentral,
+  type Operation,
+  type VehiculoFlota,
+} from "@/lib/mock-data"
 import Sidebar from "./sidebar"
 import DashboardScreen from "./dashboard-screen"
 import OperacionesScreen from "./operaciones-screen"
@@ -32,6 +42,12 @@ export default function DashboardApp({ onLogout }: DashboardAppProps) {
   const [vehiculos, setVehiculos] = useState<VehiculoFlota[]>(
     VEHICULOS_FLOTA_MOCK.map((v) => ({ ...v }))
   )
+  const [documentos, setDocumentos] = useState<DocumentoCentral[]>(
+    DOCUMENTOS_MOCK.map((d) => ({ ...d }))
+  )
+  const [conductores, setConductores] = useState<ConductorFlota[]>(
+    CONDUCTORES_INICIALES.map((c) => ({ ...c }))
+  )
 
   const vehiculosConOperacion = useMemo(
     () =>
@@ -40,6 +56,15 @@ export default function DashboardApp({ onLogout }: DashboardAppProps) {
         return { ...v, operacionAsociada: op?.id ?? null }
       }),
     [vehiculos, operations]
+  )
+
+  const docAlerts = useMemo(
+    () =>
+      documentos.filter((d) => {
+        const estado = calcularEstadoDocumento(d.fechaFin)
+        return estado === "Vencido" || estado === "Por vencer"
+      }).length,
+    [documentos]
   )
 
   const handleNavigate = (screen: string, opId?: string) => {
@@ -65,7 +90,13 @@ export default function DashboardApp({ onLogout }: DashboardAppProps) {
   const renderScreen = () => {
     switch (currentScreen) {
       case "dashboard":
-        return <DashboardScreen operations={operations} onNavigate={handleNavigate} />
+        return (
+          <DashboardScreen
+            operations={operations}
+            onNavigate={handleNavigate}
+            documentos={documentos}
+          />
+        )
       case "operaciones":
         return (
           <OperacionesScreen
@@ -83,12 +114,29 @@ export default function DashboardApp({ onLogout }: DashboardAppProps) {
             onUpdateVehiculos={setVehiculos}
             operations={operations}
             onNavigate={handleNavigate}
+            documentos={documentos}
+            onUpdateDocumentos={setDocumentos}
           />
         )
       case "conductores":
-        return <ConductoresScreen onNavigate={handleNavigate} />
+        return (
+          <ConductoresScreen
+            onNavigate={handleNavigate}
+            documentos={documentos}
+            onUpdateDocumentos={setDocumentos}
+            operations={operations}
+            conductores={conductores}
+            onUpdateConductores={setConductores}
+          />
+        )
       case "documentacion":
-        return <DocumentacionScreen onNavigate={handleNavigate} />
+        return (
+          <DocumentacionScreen
+            onNavigate={handleNavigate}
+            documentos={documentos}
+            onUpdateDocumentos={setDocumentos}
+          />
+        )
       case "mantenimientos":
         return <MantenimientosScreen onNavigate={handleNavigate} />
       case "combustible":
@@ -111,7 +159,13 @@ export default function DashboardApp({ onLogout }: DashboardAppProps) {
       case "configuracion":
         return <ConfiguracionScreen />
       default:
-        return <DashboardScreen operations={operations} onNavigate={handleNavigate} />
+        return (
+          <DashboardScreen
+            operations={operations}
+            onNavigate={handleNavigate}
+            documentos={documentos}
+          />
+        )
     }
   }
 
@@ -146,12 +200,14 @@ export default function DashboardApp({ onLogout }: DashboardAppProps) {
               aria-label="Alertas"
             >
               <Bell className="w-4 h-4" />
-              <span
-                className="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 rounded-full text-[10px] font-bold"
-                style={{ backgroundColor: "#dc2626", color: "white" }}
-              >
-                2
-              </span>
+              {docAlerts > 0 && (
+                <span
+                  className="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 rounded-full text-[10px] font-bold"
+                  style={{ backgroundColor: "#dc2626", color: "white" }}
+                >
+                  {docAlerts}
+                </span>
+              )}
             </button>
             <div
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs"

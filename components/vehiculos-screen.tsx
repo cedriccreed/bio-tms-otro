@@ -1,9 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { Plus, Pencil, Eye, X, Truck, CheckCircle2, Ban, RotateCcw } from "lucide-react"
+import { Plus, Pencil, Eye, X, Truck, CheckCircle2, Ban, RotateCcw, Upload } from "lucide-react"
 import {
-  DOCUMENTOS_MOCK,
   calcularEstadoDocumento,
   type DocumentoCentral,
   type EstadoVehiculo,
@@ -17,6 +16,8 @@ interface VehiculosScreenProps {
   onUpdateVehiculos: (v: VehiculoFlota[]) => void
   operations: Operation[]
   onNavigate: (screen: string, opId?: string) => void
+  documentos: DocumentoCentral[]
+  onUpdateDocumentos: (docs: DocumentoCentral[]) => void
 }
 
 interface VehiculoForm {
@@ -65,6 +66,18 @@ function getEstadoDocumentosVehiculo(
   if (estados.some((e) => e === "Vencido")) return "rojo"
   if (estados.some((e) => e === "Por vencer")) return "amarillo"
   return "verde"
+}
+
+function getDocumentosVencidosVehiculo(
+  placa: string,
+  documentos: DocumentoCentral[]
+): DocumentoCentral[] {
+  return documentos.filter(
+    (d) =>
+      d.tipoEntidad === "Vehiculo" &&
+      d.entidadId === placa &&
+      calcularEstadoDocumento(d.fechaFin) === "Vencido"
+  )
 }
 
 function tipoBadgeStyle(tipo: TipoVehiculo): { bg: string; color: string } {
@@ -271,6 +284,8 @@ export default function VehiculosScreen({
   onUpdateVehiculos,
   operations,
   onNavigate,
+  documentos,
+  onUpdateDocumentos,
 }: VehiculosScreenProps) {
   void operations
   const [showCreateModal, setShowCreateModal] = useState(false)
@@ -280,6 +295,15 @@ export default function VehiculosScreen({
   const [createForm, setCreateForm] = useState<VehiculoForm>(emptyForm)
   const [editForm, setEditForm] = useState<VehiculoForm>(emptyForm)
   const [filtroTipo, setFiltroTipo] = useState("todos")
+  const [showRenovarModal, setShowRenovarModal] = useState(false)
+  const [docARenovar, setDocARenovar] = useState<DocumentoCentral | null>(null)
+  const [renovarForm, setRenovarForm] = useState({
+    fechaInicio: new Date().toISOString().split("T")[0],
+    fechaFin: "",
+    costo: "",
+    archivoNombre: null as string | null,
+  })
+  const [renovarError, setRenovarError] = useState("")
 
   const vehiculosFiltrados = vehiculos.filter(
     (v) => filtroTipo === "todos" || v.tipo === filtroTipo
@@ -365,6 +389,55 @@ export default function VehiculosScreen({
     onUpdateVehiculos(
       vehiculos.map((v) => (v.id === id ? { ...v, estado: "Activo" } : v))
     )
+  }
+
+  const openRenovar = (placa: string) => {
+    const vencidos = getDocumentosVencidosVehiculo(placa, documentos)
+    if (vencidos.length === 0) return
+    setDocARenovar(vencidos[0])
+    setRenovarForm({
+      fechaInicio: new Date().toISOString().split("T")[0],
+      fechaFin: "",
+      costo: "",
+      archivoNombre: null,
+    })
+    setRenovarError("")
+    setShowRenovarModal(true)
+  }
+
+  const handleConfirmarRenovar = () => {
+    if (!docARenovar) return
+    if (!renovarForm.fechaFin) {
+      setRenovarError("La fecha de vencimiento es requerida")
+      return
+    }
+    const hoy = new Date().toISOString().split("T")[0]
+    if (renovarForm.fechaFin <= renovarForm.fechaInicio) {
+      setRenovarError("La fecha de fin debe ser posterior a la fecha de inicio")
+      return
+    }
+    if (renovarForm.fechaFin <= hoy) {
+      setRenovarError("La fecha de vencimiento debe ser futura")
+      return
+    }
+    setRenovarError("")
+    onUpdateDocumentos(
+      documentos.map((d) =>
+        d.id === docARenovar.id
+          ? {
+              ...d,
+              fechaInicio: renovarForm.fechaInicio,
+              fechaFin: renovarForm.fechaFin,
+              fechaUltimoControl: new Date().toISOString().split("T")[0],
+              fechaProximoControl: renovarForm.fechaFin,
+              costo: renovarForm.costo ? parseInt(renovarForm.costo, 10) : d.costo,
+              archivoNombre: renovarForm.archivoNombre ?? d.archivoNombre,
+            }
+          : d
+      )
+    )
+    setShowRenovarModal(false)
+    setDocARenovar(null)
   }
 
   return (
@@ -470,7 +543,8 @@ export default function VehiculosScreen({
                 {vehiculosFiltrados.map((v, i) => {
                   const badge = estadoBadgeStyle(v.estado)
                   const tipoBadge = tipoBadgeStyle(v.tipo)
-                  const alerta = getEstadoDocumentosVehiculo(v.placa, DOCUMENTOS_MOCK)
+                  const alerta = getEstadoDocumentosVehiculo(v.placa, documentos)
+                  const vencidosVehiculo = getDocumentosVencidosVehiculo(v.placa, documentos)
                   const isInactive = v.estado === "Inactivo"
                   return (
                     <tr
@@ -578,6 +652,24 @@ export default function VehiculosScreen({
                           >
                             Ver docs
                           </button>
+                          {vencidosVehiculo.length > 0 && (
+                            <button
+                              type="button"
+                              onClick={() => openRenovar(v.placa)}
+                              style={{
+                                backgroundColor: "rgba(220,38,38,0.08)",
+                                color: "#dc2626",
+                                border: "1px solid rgba(220,38,38,0.2)",
+                                borderRadius: "6px",
+                                padding: "4px 10px",
+                                fontSize: "12px",
+                                cursor: "pointer",
+                                fontWeight: 600,
+                              }}
+                            >
+                              Renovar doc
+                            </button>
+                          )}
                           {v.estado === "Activo" ? (
                             <>
                               <button
@@ -781,6 +873,132 @@ export default function VehiculosScreen({
                 Dar de baja
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {showRenovarModal && docARenovar && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+          onClick={() => {
+            setShowRenovarModal(false)
+            setDocARenovar(null)
+          }}
+        >
+          <div
+            className="w-full max-w-md rounded-2xl p-6 flex flex-col gap-4"
+            style={{ backgroundColor: "#ffffff", border: "1px solid #e5e7eb" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-base font-bold text-gray-900">Renovar documento</h2>
+                <p className="text-xs mt-0.5" style={{ color: "#6b7280" }}>
+                  {docARenovar.tipoDocumento} — {docARenovar.entidadNombre}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowRenovarModal(false)
+                  setDocARenovar(null)
+                }}
+                className="p-1.5 rounded-lg transition-all hover:opacity-80"
+                style={{ color: "#9ca3af" }}
+                aria-label="Cerrar"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault()
+                handleConfirmarRenovar()
+              }}
+              className="flex flex-col gap-4"
+            >
+              <TextField
+                label="Nueva fecha inicio"
+                type="date"
+                value={renovarForm.fechaInicio}
+                onChange={(fechaInicio) => setRenovarForm((f) => ({ ...f, fechaInicio }))}
+                required
+              />
+              <TextField
+                label="Nueva fecha fin"
+                type="date"
+                value={renovarForm.fechaFin}
+                onChange={(fechaFin) => {
+                  setRenovarForm((f) => ({ ...f, fechaFin }))
+                  setRenovarError("")
+                }}
+                required
+              />
+              {renovarError && (
+                <p className="text-xs" style={{ color: "#dc2626" }}>
+                  {renovarError}
+                </p>
+              )}
+              <TextField
+                label="Costo de renovación"
+                type="number"
+                value={renovarForm.costo}
+                onChange={(costo) => setRenovarForm((f) => ({ ...f, costo }))}
+                placeholder="Ej: 85000"
+              />
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-medium" style={{ color: "#6b7280" }}>
+                  Cargar nuevo archivo
+                </label>
+                <label
+                  className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm cursor-pointer transition-all"
+                  style={{ backgroundColor: "#f9fafb", border: "1px solid #e5e7eb", color: "#374151" }}
+                >
+                  <Upload className="w-4 h-4 flex-shrink-0" style={{ color: "#6b7280" }} />
+                  <span className="truncate">
+                    {renovarForm.archivoNombre || "Seleccionar archivo..."}
+                  </span>
+                  <input
+                    type="file"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0]
+                      setRenovarForm((f) => ({
+                        ...f,
+                        archivoNombre: file?.name ?? null,
+                      }))
+                    }}
+                  />
+                </label>
+              </div>
+
+              <div className="flex gap-3 pt-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowRenovarModal(false)
+                    setDocARenovar(null)
+                  }}
+                  className="flex-1 py-2.5 rounded-xl text-sm font-medium transition-all hover:opacity-80"
+                  style={{
+                    backgroundColor: "#f3f4f6",
+                    color: "#6b7280",
+                    border: "1px solid #e5e7eb",
+                  }}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all hover:opacity-90 text-white"
+                  style={{ backgroundColor: "#000000", color: "#ffffff" }}
+                >
+                  Confirmar renovación
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
